@@ -1,0 +1,66 @@
+{% extends "insurance_app/base.html" %}
+
+{% block title %}Dashboard - Health Insurance Helper{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom: 3rem; color: #1e3a8a; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 2.5rem;">Welcome, {{ user.first_name|default:user.username }}! 👋</h2>
+
+<div class="stats">
+    <div class="stat-card">
+        <p style="font-size: 2.5rem;">📋</p>
+        <p>Available Policies</p>
+        <h3>{{ policies.count }}</h3>
+        <a href="{% url 'policy_list' %}" class="btn" style="margin-top: 1.5rem; width: 100%; text-align: center;">View All</a>
+    </div>
+    <div class="stat-card">
+        <p style="font-size: 2.5rem;">📄</p>
+        <p>Your Claims</p>
+        <h3>{{ claims.count }}</h3>
+        <a href="{% url 'claim_list' %}" class="btn" style="margin-top: 1.5rem; width: 100%; text-align: center;">View All</a>
+    </div>
+    <div class="stat-card">
+        <p style="font-size: 2.5rem;">✍️</p>
+        <p>Submit Claim</p>
+        <h3>New</h3>
+        <a href="{% url 'submit_claim' %}" class="btn btn-secondary" style="margin-top: 1.5rem; width: 100%; text-align: center;">Start Now</a>
+    </div>
+</div>
+
+<div class="card">
+    <h3 style="margin-bottom: 2rem; color: #1e3a8a; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.5rem;">Recent Claims</h3>
+    {% if claims %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Policy</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for claim in claims|slice:":5" %}
+                    <tr>
+                        <td><strong style="color: #1e3a8a;">{{ claim.policy.name }}</strong></td>
+                        <td style="color: #0f766e; font-weight: 600;">₹{{ claim.claim_amount }}</td>
+                        <td>
+                            <span style="padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; font-family: 'Poppins', sans-serif;
+                            {% if claim.status == 'Approved' %}
+                                background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #065f46;
+                            {% elif claim.status == 'Rejected' %}
+                                background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #7f1d1d;
+                            {% else %}
+                                background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%); color: #92400e;
+                            {% endif %}
+                            ">{{ claim.status }}</span>
+                        </td>
+                        <td><a href="{% url 'claim_detail' claim.id %}" class="btn" style="padding: 0.6rem 1.2rem; font-size: 0.9rem;">Details</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p style="text-align: center; color: #994728; font-family: 'Poppins', sans-serif; font-size: 1.1rem;">You haven't submitted any claims yet. <a href="{% url 'submit_claim' %}" style="color: #1e3a8a; font-weight: 700;">Submit your first claim</a></p>
+    {% endif %}
+</div>
+{% endblock %}

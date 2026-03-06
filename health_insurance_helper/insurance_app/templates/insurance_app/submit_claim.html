@@ -1,0 +1,44 @@
+{% extends "insurance_app/base.html" %}
+
+{% block title %}Submit Claim - Health Insurance Helper{% endblock %}
+
+{% block content %}
+<a href="{% url 'claim_list' %}" style="color: #1e3a8a; text-decoration: none; margin-bottom: 2rem; display: inline-block; font-family: 'Poppins', sans-serif; font-weight: 600;">← Back to Claims</a>
+
+<div style="max-width: 600px; margin: 2rem auto;">
+    <div class="card">
+        <h2 style="color: #1e3a8a; margin-bottom: 2.5rem; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 2.2rem;">📝 Submit a New Claim</h2>
+        
+        <form method="POST" action="{% url 'submit_claim' %}">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="policy">Select Your Policy:</label>
+                <select id="policy" name="policy" required>
+                    <option value="">-- Choose a policy --</option>
+                    {% for policy in policies %}
+                        <option value="{{ policy.id }}">{{ policy.name }} (Coverage: ₹{{ policy.coverage_amount }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="claim_amount">Claim Amount (in ₹):</label>
+                <input type="number" id="claim_amount" name="claim_amount" min="1" step="0.01" required placeholder="Enter claim amount">
+            </div>
+            
+            <button type="submit" class="btn" style="width: 100%; font-size: 1.1rem; padding: 1rem;">Submit Claim</button>
+        </form>
+        
+        <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); padding: 2rem; border-radius: 12px; margin-top: 2rem; border-left: 5px solid #10b981;">
+            <h4 style="color: #065f46; margin-bottom: 1.5rem; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.2rem;">📋 How to Submit a Claim:</h4>
+            <ol style="margin-left: 1.5rem; color: #475569; font-family: 'Poppins', sans-serif; font-weight: 500;">
+                <li style="margin-bottom: 0.8rem;">Select the policy you want to claim against</li>
+                <li style="margin-bottom: 0.8rem;">Enter the claim amount you want to request</li>
+                <li style="margin-bottom: 0.8rem;">Click the Submit Claim button</li>
+                <li>Your claim will be reviewed and you'll be notified of the status</li>
+            </ol>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "insurance_app/base.html" %}
+
+{% block title %}Policies - Health Insurance Helper{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom: 3rem; color: #1e3a8a; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 2.5rem;">📋 Available Policies</h2>
+
+{% if policies %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2.5rem;">
+        {% for policy in policies %}
+            <div class="card" style="display: flex; flex-direction: column; background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%); border-top: 5px solid #1e3a8a;">
+                <h3 style="color: #1e3a8a; margin-bottom: 1.5rem; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.5rem;">{{ policy.name }}</h3>
+                
+                <p style="margin-bottom: 1rem; color: #475569; font-family: 'Poppins', sans-serif; font-weight: 500;"><strong style="color: #1e3a8a;">Type:</strong> <span style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); padding: 0.3rem 0.8rem; border-radius: 8px; display: inline-block;">{{ policy.get_policy_type_display }}</span></p>
+                <p style="margin-bottom: 1rem; color: #475569; font-family: 'Poppins', sans-serif; font-weight: 500;"><strong style="color: #0f766e;">Coverage:</strong> <span style="color: #10b981; font-weight: 700; font-size: 1.3rem;">₹{{ policy.coverage_amount }}</span></p>
+                <p style="margin-bottom: 2rem; color: #475569; font-family: 'Poppins', sans-serif; font-weight: 500;"><strong style="color: #1e3a8a;">Premium:</strong> <span style="color: #f59e0b; font-weight: 700; font-size: 1.2rem;">₹{{ policy.premium }}/mo</span></p>
+                
+                <a href="{% url 'policy_detail' policy.id %}" class="btn" style="margin-top: auto; width: 100%; text-align: center;">View Details</a>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="card" style="text-align: center; padding: 3rem;">
+        <p style="color: #64748b; font-size: 1.1rem; font-family: 'Poppins', sans-serif;">No policies available at the moment.</p>
+    </div>
+{% endif %}
+
+{% if user.is_authenticated %}
+    <div style="text-align: center; margin-top: 3rem;">
+        <a href="{% url 'submit_claim' %}" class="btn btn-secondary" style="font-size: 1.1rem; padding: 1.1rem 2.5rem;">Submit a Claim</a>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "insurance_app/base.html" %}
+
+{% block title %}Claim Details - Health Insurance Helper{% endblock %}
+
+{% block content %}
+<a href="{% url 'claim_list' %}" style="color: #1e3a8a; text-decoration: none; margin-bottom: 2rem; display: inline-block; font-family: 'Poppins', sans-serif; font-weight: 600;">← Back to Claims</a>
+
+<div class="card" style="margin-top: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; flex-wrap: wrap; gap: 1rem;">
+        <h2 style="color: #1e3a8a; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 2.2rem;">Claim Details</h2>
+        <span style="padding: 0.7rem 1.5rem; border-radius: 10px; font-weight: 700; font-size: 1.1rem; font-family: 'Poppins', sans-serif;
+        {% if claim.status == 'Approved' %}
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #065f46;
+        {% elif claim.status == 'Rejected' %}
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #7f1d1d;
+        {% else %}
+            background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%); color: #92400e;
+        {% endif %}
+        ">{{ claim.status }}</span>
+    </div>
+    
+    <table style="width: 100%; margin-bottom: 2.5rem; border-collapse: collapse;">
+        <tr style="border-bottom: 2px solid #e0e7ff;">
+            <td style="padding: 1.2rem; font-weight: 700; width: 30%; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); color: #1e3a8a;">Claim ID</td>
+            <td style="padding: 1.2rem; color: #475569;">#{{ claim.id }}</td>
+        </tr>
+        <tr style="border-bottom: 2px solid #e0e7ff;">
+            <td style="padding: 1.2rem; font-weight: 700; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); color: #1e3a8a;">Policy Name</td>
+            <td style="padding: 1.2rem; color: #475569;">{{ claim.policy.name }}</td>
+        </tr>
+        <tr style="border-bottom: 2px solid #e0e7ff;">
+            <td style="padding: 1.2rem; font-weight: 700; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); color: #1e3a8a;">Policy Type</td>
+            <td style="padding: 1.2rem; color: #475569;">{{ claim.policy.get_policy_type_display }}</td>
+        </tr>
+        <tr style="border-bottom: 2px solid #e0e7ff;">
+            <td style="padding: 1.2rem; font-weight: 700; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); color: #1e3a8a;">Claimant</td>
+            <td style="padding: 1.2rem; color: #475569;">{{ claim.user.get_full_name|default:claim.user.username }}</td>
+        </tr>
+        <tr style="border-bottom: 2px solid #e0e7ff;">
+            <td style="padding: 1.2rem; font-weight: 700; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); color: #1e3a8a;">Claim Amount</td>
+            <td style="padding: 1.2rem; color: #f59e0b; font-size: 1.3rem; font-weight: 700;">₹{{ claim.claim_amount }}</td>
+        </tr>
+        <tr style="border-bottom: 2px solid #e0e7ff;">
+            <td style="padding: 1.2rem; font-weight: 700; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); color: #1e3a8a;">Coverage Amount</td>
+            <td style="padding: 1.2rem; color: #10b981; font-weight: 700;">₹{{ claim.policy.coverage_amount }}</td>
+        </tr>
+        <tr>
+            <td style="padding: 1.2rem; font-weight: 700; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); color: #1e3a8a;">Status</td>
+            <td style="padding: 1.2rem;">
+                <span style="padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; font-family: 'Poppins', sans-serif;
+                {% if claim.status == 'Approved' %}
+                    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #065f46;
+                {% elif claim.status == 'Rejected' %}
+                    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #7f1d1d;
+                {% else %}
+                    background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%); color: #92400e;
+                {% endif %}
+                ">{{ claim.status }}</span>
+            </td>
+        </tr>
+    </table>
+    
+    <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); padding: 2rem; border-radius: 12px; margin-bottom: 2rem; border-left: 5px solid #10b981;">
+        <h4 style="color: #065f46; margin-bottom: 1.2rem; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.2rem;">📋 Claim Information</h4>
+        <p style="color: #475569; margin-bottom: 1.2rem; line-height: 1.8;">This claim is for <strong style="color: #065f46;">₹{{ claim.claim_amount }}</strong> against your <strong style="color: #065f46;">{{ claim.policy.name }}</strong> policy with a coverage amount of <strong style="color: #065f46;">₹{{ claim.policy.coverage_amount }}</strong>.</p>
+        {% if claim.status == 'Pending' %}
+            <p style="margin-top: 1rem; color: #92400e; font-family: 'Poppins', sans-serif; font-weight: 500;">⏳ Your claim is currently under review. You will be notified once a decision has been made.</p>
+        {% elif claim.status == 'Approved' %}
+            <p style="margin-top: 1rem; color: #065f46; font-family: 'Poppins', sans-serif; font-weight: 500;">✓ Congratulations! Your claim has been approved. Payment has been processed.</p>
+        {% elif claim.status == 'Rejected' %}
+            <p style="margin-top: 1rem; color: #7f1d1d; font-family: 'Poppins', sans-serif; font-weight: 500;">✗ Unfortunately, your claim could not be approved. Please contact support for more information.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

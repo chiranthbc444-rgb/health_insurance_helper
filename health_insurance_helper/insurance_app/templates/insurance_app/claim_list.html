@@ -1,0 +1,50 @@
+{% extends "insurance_app/base.html" %}
+
+{% block title %}My Claims - Health Insurance Helper{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem; flex-wrap: wrap; gap: 1rem;">
+    <h2 style="color: #1e3a8a; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 2.5rem;">📄 My Claims</h2>
+    <a href="{% url 'submit_claim' %}" class="btn btn-secondary">+ Submit New Claim</a>
+</div>
+
+{% if claims %}
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th>Policy</th>
+                    <th>Claim Amount</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for claim in claims %}
+                    <tr>
+                        <td><strong style="color: #1e3a8a;">{{ claim.policy.name }}</strong></td>
+                        <td style="color: #0f766e; font-weight: 600;">₹{{ claim.claim_amount }}</td>
+                        <td>
+                            <span style="padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; font-family: 'Poppins', sans-serif;
+                            {% if claim.status == 'Approved' %}
+                                background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #065f46;
+                            {% elif claim.status == 'Rejected' %}
+                                background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #7f1d1d;
+                            {% else %}
+                                background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%); color: #92400e;
+                            {% endif %}
+                            ">{{ claim.status }}</span>
+                        </td>
+                        <td><a href="{% url 'claim_detail' claim.id %}" class="btn" style="padding: 0.6rem 1.2rem; font-size: 0.9rem;">View Details</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="card" style="text-align: center; padding: 4rem 2rem;">
+        <p style="font-size: 1.2rem; color: #64748b; margin-bottom: 2.5rem; font-family: 'Poppins', sans-serif;">You haven't submitted any claims yet.</p>
+        <a href="{% url 'submit_claim' %}" class="btn btn-secondary" style="font-size: 1.1rem; padding: 1.1rem 2.5rem;">Submit Your First Claim</a>
+    </div>
+{% endif %}
+{% endblock %}

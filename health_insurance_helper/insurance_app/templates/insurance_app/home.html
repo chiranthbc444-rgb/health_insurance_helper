@@ -1,0 +1,48 @@
+{% extends "insurance_app/base.html" %}
+
+{% block title %}Home - Health Insurance Helper{% endblock %}
+
+{% block content %}
+<div style="text-align: center; padding: 4rem 2rem; background: linear-gradient(135deg, rgba(30, 58, 138, 0.05) 0%, rgba(15, 118, 110, 0.05) 100%); border-radius: 20px; margin-bottom: 3rem;">
+    <h2 style="font-size: 3.5rem; margin-bottom: 1rem; color: #1e3a8a; font-family: 'Poppins', sans-serif; font-weight: 700; letter-spacing: -1px;">Welcome to Health Insurance Helper</h2>
+    <p style="font-size: 1.3rem; color: #475569; margin-bottom: 2rem; font-family: 'Poppins', sans-serif; font-weight: 500; max-width: 700px; margin-left: auto; margin-right: auto;">
+        Your comprehensive solution for managing health insurance policies and claims with ease
+    </p>
+</div>
+
+{% if user.is_authenticated %}
+    <div class="stats">
+        <div class="stat-card">
+            <p style="font-size: 2rem;">📋</p>
+            <p>Total Policies</p>
+            <h3>{{ policies_count }}</h3>
+        </div>
+        <div class="stat-card">
+            <p style="font-size: 2rem;">📄</p>
+            <p>Your Claims</p>
+            <h3>{{ claims_count }}</h3>
+        </div>
+        <div class="stat-card">
+            <p style="font-size: 2rem;">👥</p>
+            <p>Total Users</p>
+            <h3>{{ users_count }}</h3>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin: 3rem 0;">
+        <a href="{% url 'dashboard' %}" class="btn" style="margin-right: 1rem; font-size: 1.1rem; padding: 1.1rem 2.5rem;">Go to Dashboard</a>
+        <a href="{% url 'policy_list' %}" class="btn btn-secondary" style="font-size: 1.1rem; padding: 1.1rem 2.5rem;">View All Policies</a>
+    </div>
+{% else %}
+    <div class="card" style="text-align: center; background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%); padding: 4rem 2rem;">
+        <h3 style="margin-bottom: 1.5rem; font-size: 2rem; color: #1e3a8a; font-family: 'Poppins', sans-serif; font-weight: 700;">Get Started Today</h3>
+        <p style="margin-bottom: 2.5rem; font-size: 1.2rem; color: #475569; font-family: 'Poppins', sans-serif; font-weight: 500;">
+            Create an account to manage your insurance policies and claims efficiently.
+        </p>
+        <div style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap;">
+            <a href="{% url 'register' %}" class="btn" style="font-size: 1.1rem; padding: 1.1rem 2.5rem;">Create Account</a>
+            <a href="{% url 'login' %}" class="btn btn-secondary" style="font-size: 1.1rem; padding: 1.1rem 2.5rem;">Sign In</a>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

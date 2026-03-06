@@ -1,0 +1,58 @@
+{% extends "insurance_app/base.html" %}
+
+{% block title %}Profile - Health Insurance Helper{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom: 3rem; color: #1e3a8a; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 2.5rem;">👤 My Profile</h2>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem;">
+    <div class="card">
+        <h3 style="color: #1e3a8a; margin-bottom: 2rem; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.5rem;">Account Information</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr style="border-bottom: 2px solid #e0e7ff;">
+                <td style="padding: 1.2rem; font-weight: 700; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); color: #1e3a8a; width: 45%;">Username:</td>
+                <td style="padding: 1.2rem; color: #475569;">{{ user.username }}</td>
+            </tr>
+            <tr style="border-bottom: 2px solid #e0e7ff;">
+                <td style="padding: 1.2rem; font-weight: 700; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); color: #1e3a8a;">Email:</td>
+                <td style="padding: 1.2rem; color: #475569;">{{ user.email }}</td>
+            </tr>
+            <tr style="border-bottom: 2px solid #e0e7ff;">
+                <td style="padding: 1.2rem; font-weight: 700; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); color: #1e3a8a;">First Name:</td>
+                <td style="padding: 1.2rem; color: #475569;">{{ user.first_name|default:"Not set" }}</td>
+            </tr>
+            <tr style="border-bottom: 2px solid #e0e7ff;">
+                <td style="padding: 1.2rem; font-weight: 700; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); color: #1e3a8a;">Last Name:</td>
+                <td style="padding: 1.2rem; color: #475569;">{{ user.last_name|default:"Not set" }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 1.2rem; font-weight: 700; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); color: #1e3a8a;">Member Since:</td>
+                <td style="padding: 1.2rem; color: #475569;">{{ user.date_joined|date:"M d, Y" }}</td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="card">
+        <h3 style="color: #1e3a8a; margin-bottom: 2rem; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.5rem;">Claims Summary</h3>
+        <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem;">
+            <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); padding: 2rem; border-radius: 12px; text-align: center; border-left: 5px solid #1e3a8a;">
+                <p style="color: #475569; margin-bottom: 1rem; font-family: 'Poppins', sans-serif; font-weight: 500; font-size: 1.1rem;">Total Claims Submitted</p>
+                <h3 style="color: #1e3a8a; font-size: 3rem; margin: 0; font-family: 'Poppins', sans-serif; font-weight: 700;">{{ user_claims }}</h3>
+            </div>
+            <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); padding: 2rem; border-radius: 12px; text-align: center; border-left: 5px solid #10b981;">
+                <p style="color: #475569; margin-bottom: 1rem; font-family: 'Poppins', sans-serif; font-weight: 500; font-size: 1.1rem;">Total Claimed Amount</p>
+                <h3 style="color: #10b981; font-size: 3rem; margin: 0; font-family: 'Poppins', sans-serif; font-weight: 700;">₹{{ total_claimed }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card" style="margin-top: 2.5rem;">
+    <h3 style="color: #1e3a8a; margin-bottom: 2rem; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.5rem;">Quick Actions</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem;">
+        <a href="{% url 'claim_list' %}" class="btn" style="text-align: center; padding: 1.1rem; font-size: 1rem;">View All Claims</a>
+        <a href="{% url 'policy_list' %}" class="btn" style="text-align: center; padding: 1.1rem; font-size: 1rem;">View Policies</a>
+        <a href="{% url 'submit_claim' %}" class="btn btn-secondary" style="text-align: center; padding: 1.1rem; font-size: 1rem;">Submit New Claim</a>
+    </div>
+</div>
+{% endblock %}
