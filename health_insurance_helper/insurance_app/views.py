@@ -1,10 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from .models import Policy, Claim
+
+
+def staff_required(view_func):
+    """Decorator ensuring the user is staff (admin)."""
+    return user_passes_test(lambda u: u.is_staff, login_url='login')(view_func)
 
 
 def home(request):
@@ -51,7 +56,7 @@ def register(request):
 
 
 def login_view(request):
-    """User login view"""
+    """Login view for regular users only"""
     if request.user.is_authenticated:
         return redirect('home')
     
@@ -62,6 +67,10 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         
         if user is not None:
+            if user.is_staff:
+                # staff must use the admin portal
+                messages.error(request, 'Staff must login via the admin portal.')
+                return redirect('admin_login')
             login(request, user)
             messages.success(request, f'Welcome back, {username}!')
             return redirect('dashboard')
@@ -78,9 +87,36 @@ def logout_view(request):
     return redirect('home')
 
 
+def admin_login(request):
+    """Login portal for administrators (staff users)."""
+    if request.user.is_authenticated:
+        if request.user.is_staff:
+            return redirect('admin_dashboard')
+        return redirect('dashboard')
+    
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            if not user.is_staff:
+                messages.error(request, 'Only staff members may use this portal.')
+                return redirect('login')
+            login(request, user)
+            return redirect('admin_dashboard')
+        else:
+            messages.error(request, 'Invalid username or password!')
+    
+    return render(request, 'insurance_app/admin_login.html')
+
+
 @login_required(login_url='login')
 def dashboard(request):
     """User dashboard view"""
+    # if a staff member stumbles here, send them to admin dashboard
+    if request.user.is_staff:
+        return redirect('admin_dashboard')
+
     user_policies = Policy.objects.all()
     user_claims = Claim.objects.filter(user=request.user)
     context = {
@@ -88,6 +124,54 @@ def dashboard(request):
         'claims': user_claims,
     }
     return render(request, 'insurance_app/dashboard.html', context)
+
+
+# --- admin views ---
+@staff_required
+def admin_dashboard(request):
+    """Simple stats page for staff users"""
+    policies_count = Policy.objects.count()
+    claims_count = Claim.objects.count()
+    pending_count = Claim.objects.filter(status='Pending').count()
+    users_count = User.objects.count()
+    context = {
+        'policies_count': policies_count,
+        'claims_count': claims_count,
+        'pending_count': pending_count,
+        'users_count': users_count,
+    }
+    return render(request, 'insurance_app/admin_dashboard.html', context)
+
+
+@staff_required
+def admin_claim_list(request):
+    """List all claims for admin"""
+    claims = Claim.objects.all().order_by('-id')
+    return render(request, 'insurance_app/admin_claim_list.html', {'claims': claims})
+
+
+@staff_required
+def admin_claim_detail(request, claim_id):
+    """View and update a claim as admin"""
+    claim = get_object_or_404(Claim, id=claim_id)
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'approve':
+            claim.status = 'Approved'
+            messages.success(request, 'Claim approved.')
+        elif action == 'deny':
+            claim.status = 'Denied'
+            messages.success(request, 'Claim denied.')
+        claim.save()
+        return redirect('admin_claim_detail', claim_id=claim.id)
+    return render(request, 'insurance_app/admin_claim_detail.html', {'claim': claim})
+
+
+@staff_required
+def admin_user_list(request):
+    """List all users for admin"""
+    users = User.objects.all().order_by('username')
+    return render(request, 'insurance_app/admin_user_list.html', {'users': users})
 
 
 @login_required(login_url='login')

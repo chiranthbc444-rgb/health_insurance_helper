@@ -41,7 +41,8 @@
         </p>
         <div style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap;">
             <a href="{% url 'register' %}" class="btn" style="font-size: 1.1rem; padding: 1.1rem 2.5rem;">Create Account</a>
-            <a href="{% url 'login' %}" class="btn btn-secondary" style="font-size: 1.1rem; padding: 1.1rem 2.5rem;">Sign In</a>
+            <a href="{% url 'login' %}" class="btn btn-secondary" style="font-size: 1.1rem; padding: 1.1rem 2.5rem;">User Sign In</a>
+            <a href="{% url 'admin_login' %}" class="btn btn-danger" style="font-size: 1.1rem; padding: 1.1rem 2.5rem;">Admin Sign In</a>
         </div>
     </div>
 {% endif %}

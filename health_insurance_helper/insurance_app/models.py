@@ -19,10 +19,16 @@ class Policy(models.Model):
 
 
 class Claim(models.Model):
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Approved', 'Approved'),
+        ('Denied', 'Denied'),
+    ]
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     policy = models.ForeignKey(Policy, on_delete=models.CASCADE)
     claim_amount = models.IntegerField()
-    status = models.CharField(max_length=50, default='Pending')
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Pending')
 
     def __str__(self):
-        return f"{self.user.username} - {self.policy.name}"
+        return f"{self.user.username} - {self.policy.name} ({self.status})"

@@ -1,0 +1,29 @@
+{% extends 'insurance_app/admin_base.html' %}
+
+{% block title %}All Users{% endblock %}
+
+{% block content %}
+<h2>All Users</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Staff Status</th>
+            <th>Date Joined</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>{% if user.is_staff %}Staff{% else %}User{% endif %}</td>
+            <td>{{ user.date_joined|date:"M d, Y" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">No users found.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

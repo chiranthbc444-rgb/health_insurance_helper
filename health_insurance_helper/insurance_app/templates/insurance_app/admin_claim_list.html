@@ -1,0 +1,33 @@
+{% extends 'insurance_app/admin_base.html' %}
+
+{% block title %}All Claims{% endblock %}
+
+{% block content %}
+<h2>All Claims</h2>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>User</th>
+            <th>Policy</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for claim in claims %}
+        <tr>
+            <td>{{ claim.id }}</td>
+            <td>{{ claim.user.username }}</td>
+            <td>{{ claim.policy.name }}</td>
+            <td>{{ claim.claim_amount }}</td>
+            <td>{{ claim.status }}</td>
+            <td><a class="btn btn-secondary" href="{% url 'admin_claim_detail' claim.id %}">View</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6">No claims found.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

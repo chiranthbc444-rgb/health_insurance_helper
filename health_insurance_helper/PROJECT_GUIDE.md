@@ -140,7 +140,10 @@ The application will be available at: **http://127.0.0.1:8000/**
    - Enter username, email, and password
    - Password confirmation is required
 
-2. **Login**: Click "Login" and enter your credentials
+2. **Login Portals**: The application provides two distinct sign‑in portals:
+   - **User Login** (`/login/`) – for regular customers who can view policies and submit claims.
+   - **Admin/Staff Login** (`/staff/login/`) – for staff users who will review and approve/deny claims.
+   Links for both portals appear on the home page and in the navigation when not authenticated.
 
 3. **View Dashboard**: After login, you'll see an overview of:
    - Available policies

@@ -1,0 +1,23 @@
+{% extends 'insurance_app/admin_base.html' %}
+
+{% block title %}Claim {{ claim.id }}{% endblock %}
+
+{% block content %}
+<h2>Claim #{{ claim.id }}</h2>
+<p><strong>User:</strong> {{ claim.user.username }}</p>
+<p><strong>Policy:</strong> {{ claim.policy.name }}</p>
+<p><strong>Amount:</strong> {{ claim.claim_amount }}</p>
+<p><strong>Status:</strong> {{ claim.status }}</p>
+
+{% if claim.status == 'Pending' %}
+<form method="post">
+    {% csrf_token %}
+    <button name="action" value="approve" class="btn">Approve</button>
+    <button name="action" value="deny" class="btn btn-danger">Deny</button>
+</form>
+{% else %}
+<p>This claim has already been {{ claim.status|lower }}.</p>
+{% endif %}
+
+<p><a class="btn btn-secondary" href="{% url 'admin_claim_list' %}">Back to list</a></p>
+{% endblock %}

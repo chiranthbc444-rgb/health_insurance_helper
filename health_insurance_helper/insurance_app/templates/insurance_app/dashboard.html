@@ -44,15 +44,13 @@
                         <td><strong style="color: #1e3a8a;">{{ claim.policy.name }}</strong></td>
                         <td style="color: #0f766e; font-weight: 600;">₹{{ claim.claim_amount }}</td>
                         <td>
-                            <span style="padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; font-family: 'Poppins', sans-serif;
                             {% if claim.status == 'Approved' %}
-                                background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #065f46;
-                            {% elif claim.status == 'Rejected' %}
-                                background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #7f1d1d;
+                                <span style="padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #065f46;">{{ claim.status }}</span>
+                            {% elif claim.status == 'Denied' %}
+                                <span style="padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #7f1d1d;">{{ claim.status }}</span>
                             {% else %}
-                                background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%); color: #92400e;
+                                <span style="padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%); color: #92400e;">{{ claim.status }}</span>
                             {% endif %}
-                            ">{{ claim.status }}</span>
                         </td>
                         <td><a href="{% url 'claim_detail' claim.id %}" class="btn" style="padding: 0.6rem 1.2rem; font-size: 0.9rem;">Details</a></td>
                     </tr>
