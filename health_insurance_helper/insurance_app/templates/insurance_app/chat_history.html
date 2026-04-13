@@ -1,0 +1,128 @@
+{% extends 'insurance_app/base_modern.html' %}
+{% load static %}
+
+{% block title %}Chat History - Health Insurance Helper{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h2 fw-bold text-primary">Chat History</h1>
+                <a href="{% url 'chatbot' %}" class="btn btn-primary">
+                    <i class="fas fa-comments me-2"></i> Continue Chat
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            {% for message in messages %}
+            <div class="card mb-3 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-start">
+                        <div class="flex-shrink-0 me-3">
+                            {% if message.message_type == 'user' %}
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            {% elif message.message_type == 'bot' %}
+                                <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                            {% else %}
+                                <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-info"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="mb-0">
+                                    {% if message.message_type == 'user' %}
+                                        You
+                                    {% elif message.message_type == 'bot' %}
+                                        AI Assistant
+                                    {% else %}
+                                        System
+                                    {% endif %}
+                                </h6>
+                                <small class="text-muted">{{ message.timestamp|date:"M d, Y H:i" }}</small>
+                            </div>
+                            <p class="mb-2" style="white-space: pre-wrap;">{{ message.content }}</p>
+
+                            {% if message.document %}
+                            <div class="alert alert-info py-2">
+                                <i class="fas fa-paperclip me-2"></i>
+                                <strong>Document:</strong> {{ message.document.get_document_type_display }}
+                                ({{ message.document.file.name }})
+                            </div>
+                            {% endif %}
+
+                            {% if message.ai_response %}
+                            <div class="mt-3 p-3 bg-light rounded">
+                                <h6 class="mb-2"><i class="fas fa-brain me-2"></i>AI Analysis</h6>
+                                {% with analysis=message.ai_response %}
+                                <div class="row">
+                                    {% if analysis.document_status %}
+                                    <div class="col-md-6">
+                                        <strong>Status:</strong>
+                                        <span class="badge
+                                            {% if analysis.document_status == 'valid' %}bg-success
+                                            {% elif analysis.document_status == 'incomplete' %}bg-warning
+                                            {% else %}bg-danger{% endif %} ms-1">
+                                            {{ analysis.document_status|title }}
+                                        </span>
+                                    </div>
+                                    {% endif %}
+
+                                    {% if analysis.claim_eligibility %}
+                                    <div class="col-md-6">
+                                        <strong>Eligibility:</strong>
+                                        <span class="badge
+                                            {% if analysis.claim_eligibility == 'eligible' %}bg-success
+                                            {% elif analysis.claim_eligibility == 'not_eligible' %}bg-danger
+                                            {% else %}bg-secondary{% endif %} ms-1">
+                                            {{ analysis.claim_eligibility|title|cut:"_" }}
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                {% if analysis.insurance_type %}
+                                <p class="mb-1 mt-2"><strong>Insurance Type:</strong> {{ analysis.insurance_type }}</p>
+                                {% endif %}
+
+                                {% if analysis.coverage_amount %}
+                                <p class="mb-1"><strong>Coverage Amount:</strong> ₹{{ analysis.coverage_amount }}</p>
+                                {% endif %}
+
+                                {% if analysis.missing_information %}
+                                <p class="mb-1"><strong>Missing Information:</strong> {{ analysis.missing_information|join:", " }}</p>
+                                {% endif %}
+
+                                {% if analysis.recommendations %}
+                                <p class="mb-0"><strong>Recommendations:</strong> {{ analysis.recommendations }}</p>
+                                {% endif %}
+                                {% endwith %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-5">
+                <i class="fas fa-comments fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">No chat history yet</h4>
+                <p class="text-muted mb-4">Start a conversation with our AI assistant to get help with your insurance queries.</p>
+                <a href="{% url 'chatbot' %}" class="btn btn-primary">
+                    <i class="fas fa-robot me-2"></i> Start Chat
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

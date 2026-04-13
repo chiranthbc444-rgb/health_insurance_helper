@@ -1,0 +1,343 @@
+{% extends 'insurance_app/base_modern.html' %}
+
+{% block title %}Contact Us - HealthGuard Insurance{% endblock %}
+
+{% block content %}
+<style>
+    .contact-hero {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+        color: white;
+        padding: 60px 0;
+        text-align: center;
+    }
+
+    .contact-hero h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .contact-hero p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+
+    .contact-section {
+        padding: 80px 0;
+        background: white;
+    }
+
+    .contact-info-card {
+        background: linear-gradient(135deg, rgba(30, 58, 138, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
+        border-radius: 12px;
+        padding: 30px;
+        border-left: 4px solid var(--primary-light);
+        margin-bottom: 30px;
+        transition: all 0.3s ease;
+    }
+
+    .contact-info-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(30, 58, 138, 0.1);
+    }
+
+    .contact-info-card i {
+        font-size: 2rem;
+        color: var(--primary-light);
+        margin-bottom: 1rem;
+    }
+
+    .contact-info-card h4 {
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .contact-info-card p {
+        color: #475569;
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    .contact-form-card {
+        background: white;
+        border-radius: 12px;
+        padding: 40px;
+        border: 2px solid #e2e8f0;
+    }
+
+    .contact-form-card h3 {
+        color: var(--primary);
+        margin-bottom: 30px;
+        font-size: 1.8rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.75rem;
+        color: var(--primary);
+        font-weight: 600;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--primary-light);
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    }
+
+    .form-group textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    .submit-button {
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        color: var(--primary);
+        border: none;
+        padding: 14px 40px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .submit-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(251, 191, 36, 0.3);
+    }
+
+    .map-container {
+        margin-top: 40px;
+        background: #e2e8f0;
+        border-radius: 12px;
+        height: 400px;
+        overflow: hidden;
+    }
+
+    .faq-section {
+        background: #f8fafc;
+        padding: 80px 0;
+    }
+
+    .faq-item {
+        background: white;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        border: 1px solid #e2e8f0;
+    }
+
+    .faq-question {
+        padding: 20px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: var(--primary);
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .faq-question:hover {
+        background: #f0f9ff;
+    }
+
+    .faq-question i {
+        transition: all 0.3s ease;
+    }
+
+    .faq-item.active .faq-question i {
+        transform: rotate(180deg);
+    }
+
+    .faq-answer {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+        padding: 0 20px;
+        color: #475569;
+    }
+
+    .faq-item.active .faq-answer {
+        max-height: 500px;
+        padding: 20px;
+    }
+</style>
+
+<!-- Hero -->
+<section class="contact-hero">
+    <div class="container">
+        <h1>Get In Touch With Us</h1>
+        <p>We're here to help and answer any question you might have</p>
+    </div>
+</section>
+
+<!-- Contact Info & Form -->
+<section class="contact-section">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-md-4">
+                <div class="contact-info-card">
+                    <i class="fas fa-phone"></i>
+                    <h4>Phone Support</h4>
+                    <p>
+                        <strong>Toll Free:</strong><br>
+                        +1 (800) 123-4567<br><br>
+                        <strong>Local:</strong><br>
+                        +1 (555) 987-6543
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="contact-info-card">
+                    <i class="fas fa-envelope"></i>
+                    <h4>Email Support</h4>
+                    <p>
+                        <strong>General Inquiries:</strong><br>
+                        info@healthguard.com<br><br>
+                        <strong>Support:</strong><br>
+                        support@healthguard.com
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="contact-info-card">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <h4>Office Address</h4>
+                    <p>
+                        HealthGuard Insurance<br>
+                        123 Health Street<br>
+                        Medical City, HC 12345<br>
+                        United States
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="contact-form-card">
+                    <h3><i class="fas fa-paper-plane"></i> Send us a Message</h3>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="name">Full Name</label>
+                                    <input type="text" id="name" name="name" required placeholder="Your name">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="email">Email Address</label>
+                                    <input type="email" id="email" name="email" required placeholder="your@email.com">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subject">Subject</label>
+                            <input type="text" id="subject" name="subject" required placeholder="How can we help?">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" required placeholder="Please describe your inquiry in detail..."></textarea>
+                        </div>
+
+                        <button type="submit" class="submit-button">
+                            <i class="fas fa-send"></i> Send Message
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="faq-section">
+    <div class="container">
+        <div style="text-align: center; margin-bottom: 60px;">
+            <h2 style="font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem;">Frequently Asked Questions</h2>
+            <p style="color: #64748b; font-size: 1.1rem;">Find answers to common questions about HealthGuard</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                    <div class="faq-question">
+                        <span>What are the eligibility criteria for insurance?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        You must be between 18-65 years of age and a citizen or permanent resident. You should be in general good health, though we accept applicants with pre-existing conditions.
+                    </div>
+                </div>
+
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                    <div class="faq-question">
+                        <span>How long does the claim approval process take?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Most claims are processed within 5-7 business days. Emergency claims are prioritized and may be processed within 24-48 hours. You can track your claim status in real-time through your dashboard.
+                    </div>
+                </div>
+
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                    <div class="faq-question">
+                        <span>Can I change my plan after enrollment?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Yes, you can upgrade or downgrade your plan once per year during the annual enrollment period, or if you experience a qualifying life event such as marriage, birth, or job change.
+                    </div>
+                </div>
+
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                    <div class="faq-question">
+                        <span>Are family members covered under the Family Plan?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Yes, the Family Plan covers up to 4 family members including yourself. Covered members typically include spouse and dependent children up to age 25.
+                    </div>
+                </div>
+
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                    <div class="faq-question">
+                        <span>Is there a waiting period for claims?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        There is typically a 30-day waiting period for non-emergency treatments from the date of enrollment. Emergency claims are covered immediately. The Premium plan offers a no waiting period option.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    function toggleFAQ(element) {
+        element.classList.toggle('active');
+    }
+</script>
+{% endblock %}

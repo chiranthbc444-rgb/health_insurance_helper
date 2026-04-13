@@ -1,0 +1,334 @@
+{% extends 'insurance_app/base_modern.html' %}
+
+{% block title %}Insurance Plans - HealthGuard Insurance{% endblock %}
+
+{% block content %}
+<style>
+    .plans-hero {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+        color: white;
+        padding: 60px 0;
+        text-align: center;
+    }
+
+    .plans-hero h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .plans-section {
+        padding: 80px 0;
+        background: white;
+    }
+
+    .plan-card {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 2.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        position: relative;
+        background: white;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .plan-card.featured {
+        border-color: var(--primary-light);
+        transform: scale(1.05);
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
+        box-shadow: 0 10px 40px rgba(30, 58, 138, 0.2);
+    }
+
+    .plan-card:hover {
+        border-color: var(--primary-light);
+        box-shadow: 0 15px 50px rgba(30, 58, 138, 0.15);
+        transform: translateY(-10px);
+    }
+
+    .plan-badge {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: var(--primary-light);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .plan-name {
+        font-size: 1.5rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .plan-price {
+        font-size: 3rem;
+        font-weight: 700;
+        color: var(--primary-light);
+        margin-bottom: 0.5rem;
+    }
+
+    .plan-price small {
+        font-size: 1rem;
+        color: #64748b;
+    }
+
+    .plan-description {
+        color: #475569;
+        margin-bottom: 2rem;
+        flex-grow: 1;
+    }
+
+    .plan-features {
+        list-style: none;
+        padding: 2rem 0;
+        text-align: left;
+        border-top: 1px solid #e2e8f0;
+        border-bottom: 1px solid #e2e8f0;
+        margin-bottom: 2rem;
+    }
+
+    .plan-features li {
+        padding: 0.75rem 0;
+        color: #475569;
+        display: flex;
+        align-items: center;
+    }
+
+    .plan-features i {
+        color: var(--secondary);
+        margin-right: 0.75rem;
+        width: 20px;
+        font-size: 1rem;
+    }
+
+    .plan-button {
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        color: var(--primary);
+        border: none;
+        padding: 12px 30px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .plan-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(251, 191, 36, 0.3);
+    }
+
+    .comparison-section {
+        background: #f8fafc;
+        padding: 60px 0;
+        margin-top: 60px;
+    }
+
+    .comparison-table {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(30, 58, 138, 0.1);
+    }
+
+    .comparison-table table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .comparison-table th {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+        color: white;
+        padding: 20px;
+        text-align: left;
+        font-weight: 600;
+    }
+
+    .comparison-table td {
+        padding: 15px 20px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .comparison-table tr:hover {
+        background: #f0f9ff;
+    }
+
+    .comparison-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .comparison-feature {
+        color: #475569;
+        font-weight: 500;
+    }
+
+    .comparison-value {
+        color: var(--primary);
+        font-weight: 600;
+    }
+</style>
+
+<!-- Hero -->
+<section class="plans-hero">
+    <div class="container">
+        <h1>Our Insurance Plans</h1>
+        <p>Choose the right coverage for your needs and budget</p>
+    </div>
+</section>
+
+<!-- Plans Section -->
+<section class="plans-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <div class="plan-card">
+                    <h4 class="plan-name"><i class="fas fa-heart"></i> Basic Plan</h4>
+                    <div class="plan-price">₹150<small>/month</small></div>
+                    <p class="plan-description">Perfect for individuals with basic health coverage needs</p>
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check"></i> Coverage up to ₹1,00,000</li>
+                        <li><i class="fas fa-check"></i> Outpatient care coverage</li>
+                        <li><i class="fas fa-check"></i> Hospital stay (5 days/year)</li>
+                        <li><i class="fas fa-check"></i> Emergency support</li>
+                        <li><i class="fas fa-check"></i> 24/7 helpline</li>
+                        <li><i class="fas fa-check"></i> No network restrictions</li>
+                    </ul>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'submit_claim' %}" class="plan-button">Apply Now</a>
+                    {% else %}
+                        <a href="{% url 'register' %}" class="plan-button">Get Started</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="col-lg-4 mb-4">
+                <div class="plan-card featured">
+                    <div class="plan-badge"><i class="fas fa-star"></i> Most Popular</div>
+                    <h4 class="plan-name"><i class="fas fa-shield-heart"></i> Premium Plan</h4>
+                    <div class="plan-price">₹300<small>/month</small></div>
+                    <p class="plan-description">Comprehensive coverage with extensive benefits for peace of mind</p>
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check"></i> Coverage up to ₹5,00,000</li>
+                        <li><i class="fas fa-check"></i> Unlimited outpatient visits</li>
+                        <li><i class="fas fa-check"></i> Hospital stay (180 days/year)</li>
+                        <li><i class="fas fa-check"></i> No waiting period</li>
+                        <li><i class="fas fa-check"></i> Wellness programs</li>
+                        <li><i class="fas fa-check"></i> Free annual checkup</li>
+                    </ul>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'submit_claim' %}" class="plan-button">Apply Now</a>
+                    {% else %}
+                        <a href="{% url 'register' %}" class="plan-button">Get Started</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="col-lg-4 mb-4">
+                <div class="plan-card">
+                    <h4 class="plan-name"><i class="fas fa-home"></i> Family Plan</h4>
+                    <div class="plan-price">₹500<small>/month</small></div>
+                    <p class="plan-description">Protect your entire family with affordable comprehensive coverage</p>
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check"></i> Coverage up to ₹10,00,000</li>
+                        <li><i class="fas fa-check"></i> Coverage for up to 4 members</li>
+                        <li><i class="fas fa-check"></i> Maternity & newborn care</li>
+                        <li><i class="fas fa-check"></i> Dental & vision benefits</li>
+                        <li><i class="fas fa-check"></i> Children health benefits</li>
+                        <li><i class="fas fa-check"></i> Priority support</li>
+                    </ul>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'submit_claim' %}" class="plan-button">Apply Now</a>
+                    {% else %}
+                        <a href="{% url 'register' %}" class="plan-button">Get Started</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Comparison Section -->
+<section class="comparison-section">
+    <div class="container">
+        <div style="text-align: center; margin-bottom: 40px;">
+            <h2 style="font-size: 2rem; color: var(--primary);">Plan Comparison</h2>
+            <p style="color: #64748b;">Compare our plans to find the best fit for your needs</p>
+        </div>
+
+        <div class="comparison-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Basic Plan</th>
+                        <th>Premium Plan</th>
+                        <th>Family Plan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="comparison-feature">Annual Premium Cost</td>
+                        <td class="comparison-value">₹1,800</td>
+                        <td class="comparison-value">₹3,600</td>
+                        <td class="comparison-value">₹6,000</td>
+                    </tr>
+                    <tr>
+                        <td class="comparison-feature">Coverage Amount</td>
+                        <td class="comparison-value">₹1,00,000</td>
+                        <td class="comparison-value">₹5,00,000</td>
+                        <td class="comparison-value">₹10,00,000</td>
+                    </tr>
+                    <tr>
+                        <td class="comparison-feature">Family Members</td>
+                        <td class="comparison-value">Individual</td>
+                        <td class="comparison-value">Individual</td>
+                        <td class="comparison-value">Up to 4</td>
+                    </tr>
+                    <tr>
+                        <td class="comparison-feature">Outpatient Coverage</td>
+                        <td class="comparison-value"><i class="fas fa-check" style="color: var(--secondary)"></i></td>
+                        <td class="comparison-value"><i class="fas fa-check" style="color: var(--secondary)"></i></td>
+                        <td class="comparison-value"><i class="fas fa-check" style="color: var(--secondary)"></i></td>
+                    </tr>
+                    <tr>
+                        <td class="comparison-feature">Hospital Stay Coverage</td>
+                        <td class="comparison-value">Limited</td>
+                        <td class="comparison-value">Extensive</td>
+                        <td class="comparison-value">Comprehensive</td>
+                    </tr>
+                    <tr>
+                        <td class="comparison-feature">Maternity Benefits</td>
+                        <td class="comparison-value">—</td>
+                        <td class="comparison-value">—</td>
+                        <td class="comparison-value"><i class="fas fa-check" style="color: var(--secondary)"></i></td>
+                    </tr>
+                    <tr>
+                        <td class="comparison-feature">Dental & Vision</td>
+                        <td class="comparison-value">—</td>
+                        <td class="comparison-value">Limited</td>
+                        <td class="comparison-value"><i class="fas fa-check" style="color: var(--secondary)"></i></td>
+                    </tr>
+                    <tr>
+                        <td class="comparison-feature">No Waiting Period</td>
+                        <td class="comparison-value">30 days</td>
+                        <td class="comparison-value"><i class="fas fa-check" style="color: var(--secondary)"></i></td>
+                        <td class="comparison-value"><i class="fas fa-check" style="color: var(--secondary)"></i></td>
+                    </tr>
+                    <tr>
+                        <td class="comparison-feature">24/7 Support</td>
+                        <td class="comparison-value"><i class="fas fa-check" style="color: var(--secondary)"></i></td>
+                        <td class="comparison-value"><i class="fas fa-check" style="color: var(--secondary)"></i></td>
+                        <td class="comparison-value"><i class="fas fa-check" style="color: var(--secondary)"></i></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

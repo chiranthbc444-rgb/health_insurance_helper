@@ -20,4 +20,15 @@ urlpatterns = [
     path('staff/claims/', views.admin_claim_list, name='admin_claim_list'),
     path('staff/claims/<int:claim_id>/', views.admin_claim_detail, name='admin_claim_detail'),
     path('staff/users/', views.admin_user_list, name='admin_user_list'),
+    # modern pages
+    path('calculator/', views.premium_calculator, name='premium_calculator'),
+    path('contact/', views.contact, name='contact'),
+    # AI Chatbot and Document Upload
+    path('chatbot/', views.chatbot_view, name='chatbot'),
+    path('upload-document/', views.upload_document, name='upload_document'),
+    path('api/chatbot/', views.chatbot_api, name='chatbot_api'),
+    path('api/compare-documents/', views.compare_documents, name='compare_documents'),
+    path('documents/', views.document_list, name='document_list'),
+    path('chat-history/', views.chat_history, name='chat_history'),
 ]
+

@@ -1,0 +1,755 @@
+{% extends 'insurance_app/base_modern.html' %}
+{% load static %}
+
+{% block title %}AI Assistant - Health Insurance Helper{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Chatbot Widget Styles */
+    .chatbot-widget {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 350px;
+        height: 500px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        display: none;
+        flex-direction: column;
+        overflow: hidden;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .chatbot-widget.open {
+        display: flex !important;
+    }
+
+    .chatbot-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .chatbot-header h4 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .chatbot-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        padding: 0;
+    }
+
+    .chatbot-messages {
+        flex: 1;
+        padding: 15px;
+        overflow-y: auto;
+        background: #f8fafc;
+    }
+
+    .message {
+        margin-bottom: 15px;
+        padding: 12px 16px;
+        border-radius: 18px;
+        max-width: 80%;
+        word-wrap: break-word;
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    .message.user {
+        background: var(--primary);
+        color: white;
+        margin-left: auto;
+        border-bottom-right-radius: 4px;
+    }
+
+    .message.bot {
+        background: white;
+        color: #374151;
+        border: 1px solid #e2e8f0;
+        border-bottom-left-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .message.system {
+        background: #fef3c7;
+        color: #92400e;
+        text-align: center;
+        max-width: 100%;
+        font-size: 12px;
+    }
+
+    /* Table styles in messages */
+    .message table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 10px 0;
+        font-size: 0.9em;
+    }
+
+    .message th, .message td {
+        padding: 8px;
+        border: 1px solid #e2e8f0;
+        text-align: left;
+    }
+
+    .message th {
+        background: #f8fafc;
+        font-weight: 600;
+    }
+
+    .chatbot-input-area {
+        padding: 15px;
+        background: white;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        gap: 10px;
+    }
+
+    .chatbot-input {
+        flex: 1;
+        padding: 12px 16px;
+        border: 2px solid #e2e8f0;
+        border-radius: 25px;
+        outline: none;
+        font-size: 14px;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .chatbot-input:focus {
+        border-color: var(--primary);
+    }
+
+    .chatbot-send {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 25px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .chatbot-send:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+    }
+
+    .chatbot-send:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* Upload area */
+    .upload-area {
+        border: 2px dashed #cbd5e1;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        margin: 15px;
+        background: #f8fafc;
+        transition: all 0.3s ease;
+    }
+
+    .upload-area:hover {
+        border-color: var(--primary);
+        background: #f0f9ff;
+    }
+
+    .upload-area.dragover {
+        border-color: var(--primary);
+        background: #e0f2fe;
+    }
+
+    .upload-button {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        margin-top: 10px;
+    }
+
+    .upload-button:hover {
+        background: var(--primary-dark);
+    }
+
+    .file-input {
+        display: none;
+    }
+
+    .document-type-select {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        margin-bottom: 10px;
+        font-size: 14px;
+    }
+
+    /* Floating chat button */
+    .chat-toggle {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(30, 58, 138, 0.3);
+        z-index: 999;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .chat-toggle:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 25px rgba(30, 58, 138, 0.4);
+    }
+
+    .chat-toggle.hidden {
+        display: none;
+    }
+
+    /* Typing indicator */
+    .typing-indicator {
+        display: none;
+        padding: 12px 16px;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        border-bottom-left-radius: 4px;
+        margin-bottom: 15px;
+        max-width: 80%;
+    }
+
+    .typing-indicator span {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #9ca3af;
+        animation: typing 1.4s infinite;
+    }
+
+    .typing-indicator span:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .typing-indicator span:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
+    @keyframes typing {
+
+        0%,
+        60%,
+        100% {
+            transform: translateY(0);
+            opacity: 0.4;
+        }
+
+        30% {
+            transform: translateY(-10px);
+            opacity: 1;
+        }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .chatbot-widget {
+            width: calc(100vw - 40px);
+            height: calc(100vh - 100px);
+            bottom: 80px;
+            right: 20px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center mb-5">
+                <h1 class="display-4 fw-bold text-primary mb-3">AI Insurance Assistant</h1>
+                <p class="lead text-muted">Get instant help with your insurance queries and document analysis</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-5">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h3 class="h4 mb-3">💬 Chat with AI Assistant</h3>
+                            <p class="text-muted mb-4">Ask questions about insurance policies, claims, coverage, and
+                                more. Our AI assistant is here to help 24/7.</p>
+                            <div class="alert alert-info py-2 mb-3">
+                                <small><i class="fas fa-info-circle me-1"></i><strong>AI Status:</strong> Active mode
+                                    enabled.</small>
+                            </div>
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Policy information</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Claim guidance</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Document analysis</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Coverage details</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h3 class="h4 mb-3">📄 Document Upload & Analysis</h3>
+                            <p class="text-muted mb-4">Upload your insurance documents for instant AI-powered analysis
+                                and claim eligibility check.</p>
+                            <div class="upload-area" onclick="document.getElementById('file-input').click()">
+                                <i class="fas fa-cloud-upload-alt fa-2x text-primary mb-3"></i>
+                                <p class="mb-2">Click to upload or drag & drop</p>
+                                <small class="text-muted">PDF, JPG, PNG up to 10MB</small>
+                                <input type="file" id="file-input" class="file-input" accept=".pdf,.jpg,.jpeg,.png"
+                                    multiple>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <hr class="my-4">
+                            <h3 class="h4 mb-3 text-primary"><i class="fas fa-balance-scale me-2"></i>Cross-Document
+                                Comparison Analysis</h3>
+                            <p class="text-muted mb-4">Select a Medical Bill and an Insurance Policy to see what's
+                                covered and your estimated out-of-pocket costs.</p>
+
+                            <div class="row g-3">
+                                <div class="col-md-5">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label class="form-label fw-bold mb-0">Select Medical Bill</label>
+                                        <button class="btn btn-sm btn-link p-0 text-decoration-none" onclick="document.getElementById('file-input').setAttribute('data-default-type', 'medical_bill'); document.getElementById('file-input').click()">
+                                            <i class="fas fa-plus-circle"></i> Upload New
+                                        </button>
+                                    </div>
+                                    <select id="bill-select" class="form-select">
+                                        <option value="">-- Choose a Bill --</option>
+                                        {% for doc in bills %}
+                                        <option value="{{ doc.id }}">{{ doc.file.name|cut:"documents/" }} ({{
+                                            doc.uploaded_at|date:"M d" }})</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label class="form-label fw-bold mb-0">Select Policy Document</label>
+                                        <button class="btn btn-sm btn-link p-0 text-decoration-none" onclick="document.getElementById('file-input').setAttribute('data-default-type', 'policy'); document.getElementById('file-input').click()">
+                                            <i class="fas fa-plus-circle"></i> Upload New
+                                        </button>
+                                    </div>
+                                    <select id="policy-select" class="form-select">
+                                        <option value="">-- Choose a Policy --</option>
+                                        {% for doc in policies %}
+                                        <option value="{{ doc.id }}">{{ doc.file.name|cut:"documents/" }} ({{
+                                            doc.uploaded_at|date:"M d" }})</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-2 d-flex align-items-end">
+                                    <button class="btn btn-outline-primary w-100" id="compare-btn"
+                                        onclick="compareDocuments()">
+                                        <i class="fas fa-search-dollar me-2"></i> Compare
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4 pt-3">
+                        <button class="btn btn-primary btn-lg px-5" onclick="openChat()">
+                            <i class="fas fa-comments me-2"></i> Start Chat
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chatbot Widget -->
+<div id="local-chatbot-widget" class="chatbot-widget">
+    <div class="chatbot-header">
+        <h4><i class="fas fa-robot me-2"></i>AI Assistant</h4>
+        <button class="chatbot-close" onclick="closeChat()">&times;</button>
+    </div>
+
+    <div id="local-chatbot-messages" class="chatbot-messages">
+        <div class="message bot">
+            Hello! I'm your AI insurance assistant. I can help you with:
+            <br>• Insurance policy questions
+            <br>• Claim procedures
+            <br>• Document analysis
+            <br>• Coverage information
+        </div>
+        <div id="local-typing-indicator" class="typing-indicator">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+
+    <div class="chatbot-input-area">
+        <input type="text" id="local-chatbot-input" class="chatbot-input" placeholder="Type your message..."
+            onkeypress="handleKeyPress(event)">
+        <button id="local-chatbot-send" class="chatbot-send" onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<!-- Floating Chat Button -->
+<button id="local-chat-toggle" class="chat-toggle" onclick="toggleChat()">
+    <i class="fas fa-comments"></i>
+</button>
+
+<!-- Document Upload Modal -->
+<div class="modal fade" id="uploadModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Upload Document</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="upload-form" method="post" enctype="multipart/form-data" action="{% url 'upload_document' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="document-type" class="form-label">Document Type</label>
+                        <select name="document_type" id="document-type" class="form-select document-type-select"
+                            required>
+                            <option value="policy">Insurance Policy</option>
+                            <option value="claim_form">Claim Form</option>
+                            <option value="medical_bill">Medical Bill</option>
+                            <option value="prescription">Prescription</option>
+                            <option value="id_proof">ID Proof</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="document-file" class="form-label">Select File</label>
+                        <input type="file" name="document" id="document-file" class="form-control"
+                            accept=".pdf,.jpg,.jpeg,.png" required>
+                        <div class="form-text">Supported formats: PDF, JPG, PNG. Maximum size: 10MB</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Upload & Analyze</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+    // Configure marked options
+    marked.setOptions({
+        breaks: true,
+        gfm: true,
+        headerIds: false,
+        mangle: false
+    });
+
+    // Chatbot functionality
+    let isChatOpen = false;
+    let sessionId = 'session_' + Date.now();
+
+    function toggleChat() {
+        const widget = document.getElementById('local-chatbot-widget');
+        const toggle = document.getElementById('local-chat-toggle');
+        if (isChatOpen) {
+            widget.classList.remove('open');
+            toggle.style.display = 'flex';
+        } else {
+            widget.classList.add('open');
+            toggle.style.display = 'none';
+        }
+        isChatOpen = !isChatOpen;
+    }
+
+    function openChat() {
+        document.getElementById('local-chatbot-widget').classList.add('open');
+        document.getElementById('local-chat-toggle').style.display = 'none';
+        isChatOpen = true;
+    }
+
+    function closeChat() {
+        document.getElementById('local-chatbot-widget').classList.remove('open');
+        document.getElementById('local-chat-toggle').style.display = 'flex';
+        isChatOpen = false;
+    }
+
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('local-chatbot-input');
+        const sendBtn = document.getElementById('local-chatbot-send');
+        const message = input.value.trim();
+        if (!message) return;
+        addMessage(message, 'user');
+        input.value = '';
+        sendBtn.disabled = true;
+        showTyping();
+        fetch('{% url "chatbot_api" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                message: message,
+                session_id: sessionId
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                hideTyping();
+                if (data.success) {
+                    addMessage(data.response, 'bot');
+                } else {
+                    addMessage('Sorry, I encountered an error. Please try again.', 'bot');
+                }
+                sendBtn.disabled = false;
+            })
+            .catch(error => {
+                hideTyping();
+                addMessage('Network error. Please check your connection and try again.', 'bot');
+                sendBtn.disabled = false;
+                console.error('Chatbot error:', error);
+            });
+    }
+
+    function addMessage(content, type) {
+        const messagesContainer = document.getElementById('local-chatbot-messages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${type}`;
+        
+        if (type === 'bot' || type === 'system') {
+            // Render markdown for bot and system messages
+            messageDiv.innerHTML = marked.parse(content);
+        } else {
+            messageDiv.innerHTML = content.replace(/\n/g, '<br>');
+        }
+        
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function showTyping() {
+        document.getElementById('local-typing-indicator').style.display = 'block';
+    }
+
+    function hideTyping() {
+        document.getElementById('local-typing-indicator').style.display = 'none';
+    }
+
+    document.getElementById('file-input').addEventListener('change', function (e) {
+        const files = e.target.files;
+        if (files.length > 0) {
+            const defaultType = this.getAttribute('data-default-type');
+            handleFileSelection(files[0], defaultType);
+            this.removeAttribute('data-default-type'); // Reset for next time
+        }
+    });
+
+    const uploadArea = document.querySelector('.upload-area');
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            handleFileSelection(files[0]);
+        }
+    });
+
+    function handleFileSelection(file, defaultType = null) {
+        const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+        if (!allowedTypes.includes(file.type)) {
+            alert('Please select a valid file type (PDF, JPG, PNG).');
+            return;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            alert('File size must be less than 10MB.');
+            return;
+        }
+        
+        // Handle pre-selection of document type if provided
+        if (defaultType) {
+            const typeSelect = document.getElementById('document-type');
+            typeSelect.value = defaultType;
+        }
+
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        document.getElementById('document-file').files = dataTransfer.files;
+        const modal = new bootstrap.Modal(document.getElementById('uploadModal'));
+        modal.show();
+    }
+
+    document.getElementById('upload-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const modalElement = document.getElementById('uploadModal');
+        const modal = bootstrap.Modal.getInstance(modalElement);
+        if (modal) {
+            modal.hide();
+        }
+        const formData = new FormData(this);
+        openChat();
+        addMessage("Uploading and analyzing document " + formData.get('document').name + "...", 'system');
+        showTyping();
+        const submitBtn = this.querySelector('button[type="submit"]');
+        if (submitBtn) submitBtn.disabled = true;
+        fetch(this.action, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                hideTyping();
+                if (data.success) {
+                    addMessage(data.response, 'bot');
+                    
+                    // Update dropdowns if we have the necessary data
+                    if (data.analysis && data.analysis.document_status === 'valid') {
+                        updateDropdowns({
+                            id: data.analysis.document_id || Date.now(), // Fallback if ID not returned
+                            name: formData.get('document').name,
+                            type: formData.get('document_type')
+                        });
+                    }
+                    
+                    this.reset();
+                } else {
+                    addMessage(data.error || 'Sorry, I encountered an error analyzing your document.', 'bot');
+                }
+            })
+            .catch(error => {
+                hideTyping();
+                addMessage('Network error while uploading. Please check your connection and try again.', 'bot');
+                console.error('Upload error:', error);
+            })
+            .finally(() => {
+                if (submitBtn) submitBtn.disabled = false;
+            });
+    });
+
+    function compareDocuments() {
+        const billId = document.getElementById('bill-select').value;
+        const policyId = document.getElementById('policy-select').value;
+        if (!billId || !policyId) {
+            alert('Please select both a medical bill and a policy document for comparison.');
+            return;
+        }
+        const compareBtn = document.getElementById('compare-btn');
+        compareBtn.disabled = true;
+        compareBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Analyzing...';
+        openChat();
+        addMessage("Initiating comparative analysis...", 'system');
+        showTyping();
+        fetch('/api/compare-documents/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                bill_id: billId,
+                policy_id: policyId
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                hideTyping();
+                if (data.success) {
+                    addMessage(data.response, 'bot');
+                } else {
+                    addMessage('Error: ' + (data.error || 'Failed to analyze documents.'), 'bot');
+                }
+            })
+            .catch(error => {
+                hideTyping();
+                addMessage('Network error during comparison analysis.', 'bot');
+                console.error('Comparison error:', error);
+            })
+            .finally(() => {
+                compareBtn.disabled = false;
+                compareBtn.innerHTML = '<i class="fas fa-search-dollar me-2"></i> Compare';
+            });
+    }
+
+    function updateDropdowns(doc) {
+        const billSelect = document.getElementById('bill-select');
+        const policySelect = document.getElementById('policy-select');
+        const option = document.createElement('option');
+        option.value = doc.id;
+        option.textContent = `${doc.name} (Just Now)`;
+        option.selected = true;
+
+        if (doc.type === 'policy') {
+            policySelect.appendChild(option);
+        } else if (['medical_bill', 'prescription'].includes(doc.type)) {
+            billSelect.appendChild(option);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        setTimeout(() => {
+            document.getElementById('local-chat-toggle').style.display = 'flex';
+        }, 3000);
+        setTimeout(() => {
+            const globalToggle = document.getElementById('global-chat-toggle');
+            if (globalToggle) {
+                globalToggle.style.display = 'none';
+                globalToggle.classList.add('hidden');
+            }
+        }, 1200);
+    });
+</script>
+{% endblock %}

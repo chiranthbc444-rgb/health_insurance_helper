@@ -1,0 +1,321 @@
+{% extends 'insurance_app/base_modern.html' %}
+
+{% block title %}Premium Calculator - HealthGuard Insurance{% endblock %}
+
+{% block content %}
+<style>
+    .calculator-section {
+        padding: 80px 0;
+        background: white;
+    }
+
+    .calculator-container {
+        background: linear-gradient(135deg, rgba(30, 58, 138, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
+        border-radius: 12px;
+        padding: 40px;
+        border: 2px solid #e2e8f0;
+    }
+
+    .calculator-title {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .calculator-title h2 {
+        font-size: 2.5rem;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .calculator-title p {
+        color: #64748b;
+        font-size: 1.1rem;
+    }
+
+    .input-group {
+        margin-bottom: 2rem;
+    }
+
+    .input-group label {
+        display: block;
+        margin-bottom: 0.75rem;
+        color: var(--primary);
+        font-weight: 600;
+    }
+
+    .input-group input,
+    .input-group select {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .input-group input:focus,
+    .input-group select:focus {
+        outline: none;
+        border-color: var(--primary-light);
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    }
+
+    .slider-container {
+        margin: 2rem 0;
+    }
+
+    .slider {
+        width: 100%;
+        height: 8px;
+        border-radius: 4px;
+        background: #e2e8f0;
+        outline: none;
+        -webkit-appearance: none;
+    }
+
+    .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--primary-light);
+        cursor: pointer;
+        box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .slider::-webkit-slider-thumb:hover {
+        width: 28px;
+        height: 28px;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+    }
+
+    .slider::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--primary-light);
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .slider-value {
+        display: inline-block;
+        background: var(--primary-light);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        margin-left: 10px;
+    }
+
+    .result-card {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        border: 2px solid var(--primary-light);
+        margin-top: 30px;
+        text-align: center;
+    }
+
+    .result-label {
+        color: #64748b;
+        font-size: 0.95rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .result-value {
+        font-size: 3rem;
+        font-weight: 700;
+        color: var(--primary-light);
+        margin-bottom: 1rem;
+    }
+
+    .result-subtext {
+        color: #475569;
+        font-size: 0.95rem;
+    }
+
+    .calculate-button {
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        color: var(--primary);
+        border: none;
+        padding: 14px 40px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        width: 100%;
+        transition: all 0.3s ease;
+        margin-top: 2rem;
+    }
+
+    .calculate-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(251, 191, 36, 0.3);
+    }
+
+    .info-box {
+        background: #eff6ff;
+        border-left: 4px solid var(--primary-light);
+        padding: 15px;
+        border-radius: 8px;
+        color: #1e40af;
+        font-size: 0.9rem;
+        margin: 20px 0;
+    }
+</style>
+
+<div class="calculator-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="calculator-title">
+                    <h2>Premium Calculator</h2>
+                    <p>Estimate your insurance premium in just a few clicks</p>
+                </div>
+
+                <div class="calculator-container">
+                    <form id="calculatorForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <label for="age">Age</label>
+                                    <input type="number" id="age" name="age" min="18" max="100" value="30" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <label for="planType">Plan Type</label>
+                                    <select id="planType" name="planType" required>
+                                        <option value="basic">Basic Plan - ₹100,000 Coverage</option>
+                                        <option value="premium">Premium Plan - ₹500,000 Coverage</option>
+                                        <option value="family">Family Plan - ₹1,000,000 Coverage</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <label for="familyMembers">Family Members</label>
+                                    <input type="number" id="familyMembers" name="familyMembers" min="1" max="6" value="1" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <label for="medicalHistory">Medical History</label>
+                                    <select id="medicalHistory" name="medicalHistory" required>
+                                        <option value="none">None</option>
+                                        <option value="minor">Minor Conditions</option>
+                                        <option value="major">Major Conditions</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="input-group">
+                                    <label for="coverage">
+                                        Coverage Multiplier
+                                        <span class="slider-value" id="coverageValue">1.0x</span>
+                                    </label>
+                                    <div class="slider-container">
+                                        <input type="range" id="coverage" name="coverage" min="0.5" max="2" step="0.1" value="1" class="slider">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-box">
+                            <i class="fas fa-info-circle"></i> Premium amounts are estimated based on selected parameters and may vary. Final premium will be determined after verification.
+                        </div>
+
+                        <button type="button" class="calculate-button" onclick="calculatePremium()">
+                            <i class="fas fa-calculator"></i> Calculate Premium
+                        </button>
+                    </form>
+
+                    <div id="resultCard" style="display: none;">
+                        <div class="result-card">
+                            <div class="result-label">Estimated Monthly Premium</div>
+                            <div class="result-value" id="premiumResult">₹0</div>
+                            <div class="result-subtext" id="premiumDetails"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 40px; padding: 30px; background: #f8fafc; border-radius: 12px;">
+                    <h4 style="color: var(--primary); margin-bottom: 20px;">How is premium calculated?</h4>
+                    <ul style="color: #475569; line-height: 2;">
+                        <li><strong>Base Premium:</strong> Depends on the plan type (Basic, Premium, Family)</li>
+                        <li><strong>Age Factor:</strong> Premium increases with age for better coverage</li>
+                        <li><strong>Family Members:</strong> Additional members add to the premium</li>
+                        <li><strong>Medical History:</strong> Pre-existing conditions may affect premium</li>
+                        <li><strong>Coverage Multiplier:</strong> Increase coverage for higher benefits</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Update coverage display
+    document.getElementById('coverage').addEventListener('input', function() {
+        document.getElementById('coverageValue').textContent = this.value + 'x';
+    });
+
+    function calculatePremium() {
+        const age = parseInt(document.getElementById('age').value);
+        const planType = document.getElementById('planType').value;
+        const familyMembers = parseInt(document.getElementById('familyMembers').value);
+        const medicalHistory = document.getElementById('medicalHistory').value;
+        const coverage = parseFloat(document.getElementById('coverage').value);
+
+        // Base premiums
+        const basePremiums = {
+            'basic': 150,
+            'premium': 300,
+            'family': 500
+        };
+
+        let premium = basePremiums[planType];
+
+        // Age factor
+        if (age >= 18 && age < 25) premium *= 0.8;
+        else if (age >= 25 && age < 35) premium *= 0.9;
+        else if (age >= 35 && age < 45) premium *= 1.0;
+        else if (age >= 45 && age < 55) premium *= 1.2;
+        else if (age >= 55) premium *= 1.5;
+
+        // Family members factor
+        if (planType === 'family') {
+            premium += (familyMembers - 1) * 100;
+        }
+
+        // Medical history factor
+        if (medicalHistory === 'minor') premium *= 1.15;
+        else if (medicalHistory === 'major') premium *= 1.35;
+
+        // Coverage multiplier
+        premium *= coverage;
+
+        // Display result
+        document.getElementById('resultCard').style.display = 'block';
+        document.getElementById('premiumResult').textContent = '₹' + Math.round(premium);
+        
+        let details = `Based on age ${age}, ${planType.charAt(0).toUpperCase() + planType.slice(1)} plan`;
+        details += `, ${familyMembers} family member(s)`;
+        if (medicalHistory !== 'none') details += `, ${medicalHistory} medical history`;
+        details += `, and ${coverage}x coverage multiplier`;
+        
+        document.getElementById('premiumDetails').textContent = details;
+    }
+</script>
+{% endblock %}

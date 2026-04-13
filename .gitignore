@@ -1,3 +1,4 @@
 env
 *.pyc
 health_insurance_helper/insurance_app/__pycache__/__init__.cpython-314.pyc
+health_insurance_helper/media/
