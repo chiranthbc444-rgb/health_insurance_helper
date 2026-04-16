@@ -1,338 +1,421 @@
 {% extends 'insurance_app/base_modern.html' %}
+{% block title %}Dashboard — HealthGuard{% endblock %}
 
-{% block title %}Dashboard - HealthGuard Insurance{% endblock %}
-
-{% block content %}
+{% block extra_css %}
 <style>
-    .dashboard-header {
-        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-        color: white;
-        padding: 40px 0;
-        margin-bottom: 40px;
+    .dash-header {
+        background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.1));
+        border-bottom: 1px solid var(--border);
+        padding: 2.5rem 0;
     }
-
-    .dashboard-header h1 {
-        font-size: 2.2rem;
-        margin-bottom: 0.5rem;
+    .dash-header-inner {
+        max-width: 1400px; margin: 0 auto; padding: 0 2rem;
+        display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
     }
+    .dash-greeting { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 800; }
+    .dash-time { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem; }
 
-    .dashboard-header p {
-        opacity: 0.9;
-        margin: 0;
+    .dash-body { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+
+    /* Coverage meter */
+    .coverage-bar-wrap { margin-top: 1rem; }
+    .coverage-labels { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 6px; }
+    .progress { height: 10px; }
+
+    /* Chart cards */
+    .chart-card {
+        background: var(--glass); border: 1px solid var(--glass-border);
+        border-radius: var(--radius); padding: 1.5rem;
     }
-
-    .stat-card {
-        background: white;
-        border-radius: 12px;
-        padding: 25px;
-        border: 2px solid #e2e8f0;
-        text-align: center;
-        transition: all 0.3s ease;
-        margin-bottom: 20px;
+    .chart-card-header {
+        display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;
     }
+    .chart-card-title { font-size: 0.95rem; font-weight: 700; }
+    .chart-card-sub { font-size: 0.78rem; color: var(--text-muted); }
 
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(30, 58, 138, 0.15);
-        border-color: var(--primary-light);
+    .canvas-wrap { position: relative; height: 220px; }
+
+    /* Claims table */
+    .claims-section {
+        background: var(--glass); border: 1px solid var(--glass-border);
+        border-radius: var(--radius); overflow: hidden;
     }
-
-    .stat-icon {
-        font-size: 2rem;
-        color: var(--primary-light);
-        margin-bottom: 10px;
+    .claims-header {
+        padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border);
+        display: flex; justify-content: space-between; align-items: center;
     }
+    .claims-header h3 { font-size: 1rem; font-weight: 700; }
 
-    .stat-value {
-        font-size: 2rem;
-        font-weight: 700;
-        color: var(--primary);
-        margin-bottom: 5px;
+    .empty-state { text-align: center; padding: 3rem 1.5rem; }
+    .empty-icon { font-size: 3rem; color: var(--text-muted); opacity: 0.3; margin-bottom: 1rem; }
+    .empty-title { font-size: 1rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.5rem; }
+    .empty-sub { font-size: 0.875rem; color: var(--text-muted); }
+
+    /* Risk score ring */
+    #riskRing { transition: stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1); }
+
+    /* Action quick links */
+    .quick-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+    .qa-btn {
+        background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm);
+        padding: 0.875rem; text-align: center; text-decoration: none;
+        color: var(--text-secondary); font-size: 0.82rem; font-weight: 600;
+        transition: var(--transition); display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
     }
+    .qa-btn i { font-size: 1.25rem; }
+    .qa-btn:hover { background: var(--bg-card-hover); border-color: var(--accent-primary); color: var(--text-primary); }
 
-    .stat-label {
-        color: #64748b;
-        font-size: 0.95rem;
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: 15px;
-        flex-wrap: wrap;
-        margin-bottom: 40px;
-    }
-
-    .action-button {
-        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-        color: var(--primary);
-        border: none;
-        padding: 12px 25px;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-block;
-    }
-
-    .action-button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(251, 191, 36, 0.3);
-        color: var(--primary);
-        text-decoration: none;
-    }
-
-    .action-button.secondary {
-        background: white;
-        border: 2px solid var(--primary-light);
-        color: var(--primary);
-    }
-
-    .action-button.secondary:hover {
-        background: #f0f9ff;
-    }
-
-    .section-title {
-        color: var(--primary);
-        font-size: 1.5rem;
-        margin-bottom: 25px;
-        padding-bottom: 15px;
-        border-bottom: 2px solid #e2e8f0;
-    }
-
-    .claim-card {
-        background: white;
-        border-radius: 12px;
-        padding: 20px;
-        border-left: 4px solid var(--primary-light);
-        margin-bottom: 20px;
-        transition: all 0.3s ease;
-    }
-
-    .claim-card:hover {
-        box-shadow: 0 10px 30px rgba(30, 58, 138, 0.1);
-        transform: translateX(5px);
-    }
-
-    .claim-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-    }
-
-    .claim-policy {
-        color: var(--primary);
-        font-weight: 600;
-        font-size: 1.1rem;
-    }
-
-    .claim-status {
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: 600;
-    }
-
-    .claim-status.pending {
-        background: #fef3c7;
-        color: #92400e;
-    }
-
-    .claim-status.approved {
-        background: #d1fae5;
-        color: #065f46;
-    }
-
-    .claim-status.denied {
-        background: #fee2e2;
-        color: #7f1d1d;
-    }
-
-    .claim-amount {
-        color: #475569;
-        font-size: 0.95rem;
-        margin-bottom: 10px;
-    }
-
-    .claim-amount strong {
-        color: var(--secondary);
-        font-size: 1.2rem;
-    }
-
-    .claim-date {
-        color: #94a3b8;
-        font-size: 0.9rem;
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: 40px 20px;
-        background: #f0f9ff;
-        border-radius: 12px;
-        margin: 20px 0;
-    }
-
-    .empty-state-icon {
-        font-size: 3rem;
-        color: var(--primary-light);
-        margin-bottom: 15px;
-        opacity: 0.5;
-    }
-
-    .empty-state-text {
-        color: #64748b;
-        font-size: 1.1rem;
-        margin-bottom: 20px;
+    @media (max-width: 768px) {
+        .dash-body { padding: 1rem; }
+        .grid-dash { grid-template-columns: 1fr; }
     }
 </style>
+{% endblock %}
 
-<!-- Header -->
-<div class="dashboard-header">
-    <div class="container">
-        <h1><i class="fas fa-tachometer-alt"></i> Welcome, {{ user.first_name|default:user.username }}! 👋</h1>
-        <p>Manage your insurance policies and claims</p>
+{% block content %}
+<!-- Dash Header -->
+<div class="dash-header">
+    <div class="dash-header-inner">
+        <div>
+            <div class="dash-greeting">
+                👋 Welcome back, <span style="background: var(--gradient-hero); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">{{ user.get_full_name|default:user.username }}</span>
+            </div>
+            <div class="dash-time" id="dashTime"></div>
+        </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <a href="{% url 'submit_claim' %}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus"></i> New Claim
+            </a>
+            <a href="{% url 'chatbot' %}" class="btn btn-ghost btn-sm">
+                <i class="fas fa-robot"></i> AI Assistant
+            </a>
+        </div>
     </div>
 </div>
 
-<!-- Main Content -->
-<div class="container">
+<div class="dash-body">
+
     <!-- Stats Row -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-shield-alt"></i></div>
-                <div class="stat-value">₹{{ active_policy.coverage_amount|default:"0" }}</div>
-                <div class="stat-label">Initial Coverage</div>
+    <div class="grid grid-4" style="margin-bottom: 1.5rem;">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(99,102,241,0.15); color: #818cf8;">
+                <i class="fas fa-shield-alt"></i>
             </div>
+            <div class="stat-label">Coverage Limit</div>
+            <div class="stat-value" data-count="{{ active_policy.coverage_amount|default:0 }}" data-prefix="₹">₹{{ active_policy.coverage_amount|default:0 }}</div>
+            <div class="stat-change up"><i class="fas fa-arrow-up"></i> Active Policy</div>
         </div>
-        <div class="col-md-3">
-            <div class="stat-card" style="border-color: #fecaca;">
-                <div class="stat-icon" style="color: #ef4444;"><i class="fas fa-receipt"></i></div>
-                <div class="stat-value">₹{{ approved_claims_total }}</div>
-                <div class="stat-label">Approved Claims</div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(16,185,129,0.15); color: #34d399;">
+                <i class="fas fa-wallet"></i>
             </div>
+            <div class="stat-label">Remaining Balance</div>
+            <div class="stat-value">₹{{ remaining_balance }}</div>
+            {% if coverage_utilization %}
+            <div class="stat-change {% if coverage_utilization < 50 %}up{% else %}down{% endif %}">
+                <i class="fas fa-chart-pie"></i> {{ coverage_utilization }}% used
+            </div>
+            {% endif %}
         </div>
-        <div class="col-md-3">
-            <div class="stat-card" style="border-color: #fde68a;">
-                <div class="stat-icon" style="color: #f59e0b;"><i class="fas fa-calendar-minus"></i></div>
-                <div class="stat-value">₹{{ monthly_premium }}</div>
-                <div class="stat-label">Monthly Premium</div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(245,158,11,0.15); color: #fbbf24;">
+                <i class="fas fa-clock"></i>
             </div>
+            <div class="stat-label">Pending Claims</div>
+            <div class="stat-value">{{ pending_claims }}</div>
+            <div class="stat-change" style="color: var(--text-muted);">Awaiting review</div>
         </div>
-        <div class="col-md-3">
-            <div class="stat-card" style="border-color: #86efac; background: #f0fdf4;">
-                <div class="stat-icon" style="color: #10b981;"><i class="fas fa-wallet"></i></div>
-                <div class="stat-value">₹{{ remaining_balance }}</div>
-                <div class="stat-label">Remaining Balance</div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(244,63,94,0.15); color: #fb7185;">
+                <i class="fas fa-file-invoice"></i>
             </div>
+            <div class="stat-label">Total Claimed</div>
+            <div class="stat-value">₹{{ total_claimed }}</div>
+            <div class="stat-change" style="color: var(--text-muted);">All time</div>
         </div>
     </div>
 
-    <!-- Action Buttons -->
-    <div class="action-buttons">
-        <a href="{% url 'policy_list' %}" class="action-button">
-            <i class="fas fa-list"></i> Browse Plans
-        </a>
-        <a href="{% url 'submit_claim' %}" class="action-button secondary">
-            <i class="fas fa-file-circle-plus"></i> Submit Claim
-        </a>
-        <a href="{% url 'premium_calculator' %}" class="action-button secondary">
-            <i class="fas fa-calculator"></i> Calculator
-        </a>
-        <a href="{% url 'profile' %}" class="action-button secondary">
-            <i class="fas fa-user"></i> Profile
-        </a>
-    </div>
+    <!-- Main Grid -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr 340px; gap: 1.5rem; align-items: start;" class="grid-dash">
 
-    <!-- Recent Claims -->
-    <div class="row mt-5">
-        <div class="col-12">
-            <h2 class="section-title"><i class="fas fa-history"></i> Recent Claims</h2>
+        <!-- Claims Trend Chart -->
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <div>
+                    <div class="chart-card-title"><i class="fas fa-chart-line" style="color: var(--accent-primary);"></i> Claims Trend</div>
+                    <div class="chart-card-sub">Last 6 months</div>
+                </div>
+                <a href="{% url 'claim_list' %}" class="btn btn-ghost btn-sm">View All</a>
+            </div>
+            <div class="canvas-wrap"><canvas id="lineChart"></canvas></div>
+        </div>
 
-            {% if claims %}
-            {% for claim in claims|slice:":5" %}
-            <div class="claim-card">
-                <div class="claim-header">
-                    <span class="claim-policy">{{ claim.policy.name }}</span>
-                    <span
-                        class="claim-status {% if claim.status == 'Approved' %}approved{% elif claim.status == 'Denied' %}denied{% else %}pending{% endif %}">
-                        {{ claim.status }}
+        <!-- Claims Distribution -->
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <div>
+                    <div class="chart-card-title"><i class="fas fa-chart-donut" style="color: var(--accent-secondary);"></i> Claims Distribution</div>
+                    <div class="chart-card-sub">By status</div>
+                </div>
+            </div>
+            <div class="canvas-wrap" style="height:180px; display: flex; align-items: center; justify-content: center;">
+                <canvas id="doughnutChart" style="max-height:180px;"></canvas>
+            </div>
+            <div style="display: flex; justify-content: center; gap: 1.5rem; margin-top: 1rem; flex-wrap: wrap;">
+                <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.8rem;color:var(--text-muted);">
+                    <span style="width:10px;height:10px;border-radius:50%;background:#10b981;display:inline-block;"></span> Approved ₹{{ approved_claims_total }}
+                </div>
+                <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.8rem;color:var(--text-muted);">
+                    <span style="width:10px;height:10px;border-radius:50%;background:#f59e0b;display:inline-block;"></span> Pending ₹{{ pending_claims_total }}
+                </div>
+                <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.8rem;color:var(--text-muted);">
+                    <span style="width:10px;height:10px;border-radius:50%;background:#f43f5e;display:inline-block;"></span> Denied ₹{{ denied_claims_total }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar -->
+        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+
+            <!-- Risk Score Card -->
+            <div class="chart-card">
+                <div class="chart-card-header" style="margin-bottom: 0.5rem;">
+                    <div class="chart-card-title"><i class="fas fa-heartbeat" style="color: var(--accent-rose);"></i> Risk Score</div>
+                    <span class="badge {% if risk_category == 'Low' %}badge-success{% elif risk_category == 'Medium' %}badge-warning{% else %}badge-danger{% endif %}">
+                        {{ risk_category }}
                     </span>
                 </div>
-                <div class="claim-amount">
-                    Amount: <strong>₹{{ claim.claim_amount }}</strong>
+                <div class="risk-meter" style="margin: 0.75rem auto;">
+                    <svg width="140" height="140" viewBox="0 0 140 140">
+                        <circle cx="70" cy="70" r="58" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="12"/>
+                        <circle id="riskRing" cx="70" cy="70" r="58" fill="none"
+                            stroke="{% if risk_score < 25 %}#10b981{% elif risk_score < 50 %}#f59e0b{% elif risk_score < 75 %}#f43f5e{% else %}#ef4444{% endif %}"
+                            stroke-width="12" stroke-linecap="round"
+                            stroke-dasharray="364.425"
+                            stroke-dashoffset="{{ 364.425|add:0 }}"
+                            style="transform: rotate(-90deg); transform-origin: center;"/>
+                    </svg>
+                    <div class="risk-score-label">
+                        <div class="risk-number" style="color: {% if risk_score < 25 %}#10b981{% elif risk_score < 50 %}#f59e0b{% elif risk_score < 75 %}#f43f5e{% else %}#ef4444{% endif %};">
+                            {{ risk_score|floatformat:0 }}
+                        </div>
+                        <div style="font-size: 0.72rem; color: var(--text-muted);">/ 100</div>
+                    </div>
                 </div>
-                <div class="claim-date">
-                    <i class="fas fa-calendar"></i> Claim ID: #{{ claim.id }}
-                </div>
-            </div>
-            {% endfor %}
-
-            {% if claims.count > 5 %}
-            <a href="{% url 'claim_list' %}"
-                style="color: var(--primary-light); font-weight: 600; text-decoration: none; margin-top: 10px; display: inline-block;">
-                View all claims <i class="fas fa-arrow-right"></i>
-            </a>
-            {% endif %}
-            {% else %}
-            <div class="empty-state">
-                <div class="empty-state-icon"><i class="fas fa-inbox"></i></div>
-                <p class="empty-state-text">You haven't submitted any claims yet</p>
-                <a href="{% url 'submit_claim' %}" class="action-button">
-                    <i class="fas fa-plus"></i> Submit Your First Claim
+                <p style="font-size: 0.78rem; color: var(--text-muted); text-align: center; margin-top: 0.5rem;">
+                    {% if risk_score < 25 %}Excellent health profile!{% elif risk_score < 50 %}Moderate risk level.{% else %}Consider a health checkup.{% endif %}
+                </p>
+                <a href="{% url 'profile' %}" class="btn btn-ghost btn-sm" style="width: 100%; justify-content: center; margin-top: 0.75rem;">
+                    Update Health Profile
                 </a>
             </div>
-            {% endif %}
-        </div>
-    </div>
 
-    <!-- Browse Plans -->
-    <div class="row mt-5 mb-5">
-        <div class="col-12">
-            <h2 class="section-title"><i class="fas fa-shield-alt"></i> Our Plans</h2>
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <div style="background: white; border-radius: 12px; padding: 20px; border: 2px solid #e2e8f0; text-align: center; transition: all 0.3s ease;"
-                        onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 30px rgba(30, 58, 138, 0.15)'"
-                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-                        <h4 style="color: var(--primary); margin-bottom: 10px;">Basic Plan</h4>
-                        <p style="font-size: 1.8rem; color: var(--primary-light); margin: 10px 0; font-weight: 700;">
-                            ₹150<span style="font-size: 0.9rem; color: #64748b;">/month</span></p>
-                        <p style="color: #475569; font-size: 0.9rem; margin-bottom: 15px;">Coverage up to ₹1,00,000</p>
-                        <a href="{% url 'policy_list' %}"
-                            style="color: #fbbf24; font-weight: 600; text-decoration: none;">Learn More →</a>
+            <!-- Coverage Progress -->
+            {% if active_policy %}
+            <div class="chart-card">
+                <div class="chart-card-title" style="margin-bottom: 0.75rem;">
+                    <i class="fas fa-shield" style="color: var(--accent-emerald);"></i> Coverage Utilization
+                </div>
+                <div>
+                    <div class="coverage-labels">
+                        <span>₹{{ approved_claims_total }} used</span>
+                        <span>₹{{ active_policy.coverage_amount }} total</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar" id="coverageBar" style="width: 0%; background: {% if coverage_utilization > 80 %}linear-gradient(135deg, #f43f5e, #e11d48){% elif coverage_utilization > 50 %}linear-gradient(135deg, #f59e0b, #d97706){% else %}var(--gradient-hero){% endif %};"></div>
+                    </div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.5rem; text-align: center;">
+                        {{ coverage_utilization }}% utilized
                     </div>
                 </div>
-                <div class="col-md-4 mb-3">
-                    <div style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%); border-radius: 12px; padding: 20px; border: 2px solid var(--primary-light); text-align: center; transition: all 0.3s ease;"
-                        onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 30px rgba(30, 58, 138, 0.2)'"
-                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(30, 58, 138, 0.08)'">
-                        <span
-                            style="background: var(--primary-light); color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; display: inline-block; margin-bottom: 10px;">Popular</span>
-                        <h4 style="color: var(--primary); margin-bottom: 10px; margin-top: 10px;">Premium Plan</h4>
-                        <p style="font-size: 1.8rem; color: var(--primary-light); margin: 10px 0; font-weight: 700;">
-                            ₹300<span style="font-size: 0.9rem; color: #64748b;">/month</span></p>
-                        <p style="color: #475569; font-size: 0.9rem; margin-bottom: 15px;">Coverage up to ₹5,00,000</p>
-                        <a href="{% url 'policy_list' %}"
-                            style="color: var(--primary-light); font-weight: 600; text-decoration: none;">Learn More
-                            →</a>
-                    </div>
+                <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--border);">
+                    <div style="font-size: 0.78rem; color: var(--text-muted);">Premium</div>
+                    <div style="font-weight: 700; color: var(--text-primary);">₹{{ monthly_premium }}<small style="font-weight:400;color:var(--text-muted);"> /month</small></div>
                 </div>
-                <div class="col-md-4 mb-3">
-                    <div style="background: white; border-radius: 12px; padding: 20px; border: 2px solid #e2e8f0; text-align: center; transition: all 0.3s ease;"
-                        onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 30px rgba(30, 58, 138, 0.15)'"
-                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-                        <h4 style="color: var(--primary); margin-bottom: 10px;">Family Plan</h4>
-                        <p style="font-size: 1.8rem; color: var(--primary-light); margin: 10px 0; font-weight: 700;">
-                            ₹500<span style="font-size: 0.9rem; color: #64748b;">/month</span></p>
-                        <p style="color: #475569; font-size: 0.9rem; margin-bottom: 15px;">Coverage up to ₹10,00,000</p>
-                        <a href="{% url 'policy_list' %}"
-                            style="color: #fbbf24; font-weight: 600; text-decoration: none;">Learn More →</a>
-                    </div>
+            </div>
+            {% endif %}
+
+            <!-- Quick Actions -->
+            <div class="chart-card">
+                <div class="chart-card-title" style="margin-bottom: 0.875rem;">
+                    <i class="fas fa-bolt" style="color: var(--accent-amber);"></i> Quick Actions
+                </div>
+                <div class="quick-actions">
+                    <a href="{% url 'submit_claim' %}" class="qa-btn">
+                        <i class="fas fa-file-plus" style="color: var(--accent-primary);"></i>
+                        <span>New Claim</span>
+                    </a>
+                    <a href="{% url 'chatbot' %}" class="qa-btn">
+                        <i class="fas fa-robot" style="color: var(--accent-emerald);"></i>
+                        <span>AI Chat</span>
+                    </a>
+                    <a href="{% url 'policy_list' %}" class="qa-btn">
+                        <i class="fas fa-shield-alt" style="color: var(--accent-secondary);"></i>
+                        <span>Plans</span>
+                    </a>
+                    <a href="{% url 'document_list' %}" class="qa-btn">
+                        <i class="fas fa-folder" style="color: var(--accent-amber);"></i>
+                        <span>Docs ({{ documents_count }})</span>
+                    </a>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Recent Claims Table -->
+    <div class="claims-section" style="margin-top: 1.5rem;">
+        <div class="claims-header">
+            <h3><i class="fas fa-history" style="color: var(--accent-cyan);"></i> Recent Claims</h3>
+            <a href="{% url 'claim_list' %}" class="btn btn-ghost btn-sm">View All</a>
+        </div>
+        {% if claims %}
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Policy</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for claim in claims %}
+                    <tr>
+                        <td><span style="color: var(--text-muted);">#{{ claim.id }}</span></td>
+                        <td style="color: var(--text-primary); font-weight: 500;">{{ claim.policy.name }}</td>
+                        <td style="color: var(--text-primary); font-weight: 700;">₹{{ claim.claim_amount }}</td>
+                        <td>
+                            <span class="badge {% if claim.status == 'Approved' %}badge-success{% elif claim.status == 'Denied' %}badge-danger{% else %}badge-warning{% endif %}">
+                                <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+                                {{ claim.status }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'claim_detail' claim.id %}" class="btn btn-ghost btn-sm">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon"><i class="fas fa-inbox"></i></div>
+            <div class="empty-title">No claims yet</div>
+            <div class="empty-sub">Submit your first claim to get started</div>
+            <a href="{% url 'submit_claim' %}" class="btn btn-primary" style="margin-top: 1rem;"><i class="fas fa-plus"></i> Submit Claim</a>
+        </div>
+        {% endif %}
+    </div>
+
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Time display
+function updateTime() {
+    const now = new Date();
+    document.getElementById('dashTime').textContent =
+        now.toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+}
+updateTime();
+setInterval(updateTime, 60000);
+
+// Chart.js defaults
+Chart.defaults.color = '#64748b';
+Chart.defaults.font.family = 'Inter, sans-serif';
+Chart.defaults.font.size = 12;
+
+const lineCtx = document.getElementById('lineChart').getContext('2d');
+const labels = {{ monthly_labels|safe }};
+const data = {{ monthly_data|safe }};
+
+const gradient = lineCtx.createLinearGradient(0, 0, 0, 220);
+gradient.addColorStop(0, 'rgba(99,102,241,0.3)');
+gradient.addColorStop(1, 'rgba(99,102,241,0)');
+
+new Chart(lineCtx, {
+    type: 'line',
+    data: {
+        labels,
+        datasets: [{
+            label: 'Claims (₹)',
+            data,
+            borderColor: '#6366f1',
+            backgroundColor: gradient,
+            borderWidth: 2.5,
+            pointRadius: 4,
+            pointBackgroundColor: '#6366f1',
+            pointBorderColor: '#0a0f1e',
+            pointBorderWidth: 2,
+            tension: 0.4,
+            fill: true,
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: {
+            backgroundColor: 'rgba(17,24,39,0.95)',
+            borderColor: 'rgba(99,102,241,0.3)', borderWidth: 1,
+            titleColor: '#f1f5f9', bodyColor: '#94a3b8',
+            callbacks: { label: ctx => '₹' + ctx.parsed.y.toLocaleString('en-IN') }
+        }},
+        scales: {
+            x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#64748b' }},
+            y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#64748b', callback: v => '₹' + (v >= 1000 ? (v/1000).toFixed(0) + 'K' : v) }}
+        }
+    }
+});
+
+const doughnutCtx = document.getElementById('doughnutChart').getContext('2d');
+const dData = {{ claims_chart_data|safe }};
+const hasData = dData.some(v => v > 0);
+
+new Chart(doughnutCtx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ claims_chart_labels|safe }},
+        datasets: [{
+            data: hasData ? dData : [1, 0, 0],
+            backgroundColor: hasData ? ['#10b981', '#f59e0b', '#f43f5e'] : ['rgba(255,255,255,0.06)'],
+            borderColor: 'transparent',
+            borderWidth: 0,
+            hoverOffset: 6,
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false, cutout: '72%',
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                backgroundColor: 'rgba(17,24,39,0.95)',
+                borderColor: 'rgba(99,102,241,0.3)', borderWidth: 1,
+                callbacks: { label: ctx => ctx.label + ': ₹' + ctx.parsed.toLocaleString('en-IN') }
+            }
+        }
+    }
+});
+
+// Animate risk ring
+window.addEventListener('load', () => {
+    const ring = document.getElementById('riskRing');
+    const score = {{ risk_score|floatformat:0 }};
+    const circumference = 364.425;
+    const offset = circumference - (score / 100) * circumference;
+    setTimeout(() => { ring.style.strokeDashoffset = offset; }, 300);
+});
+
+// Animate coverage bar
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        const bar = document.getElementById('coverageBar');
+        if (bar) bar.style.width = '{{ coverage_utilization }}%';
+    }, 500);
+});
+</script>
 {% endblock %}

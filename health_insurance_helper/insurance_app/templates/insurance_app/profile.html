@@ -1,58 +1,449 @@
-{% extends "insurance_app/base.html" %}
+{% extends 'insurance_app/base_modern.html' %}
+{% block title %}My Profile — HealthGuard{% endblock %}
 
-{% block title %}Profile - Health Insurance Helper{% endblock %}
+{% block extra_css %}
+<style>
+    .profile-hero {
+        background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.08));
+        border-bottom: 1px solid var(--border); padding: 3rem 0;
+    }
+    .profile-inner { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+    .profile-av-wrap { position: relative; display: inline-block; }
+    .profile-avatar {
+        width: 90px; height: 90px; border-radius: 50%; background: var(--gradient-hero);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 2.5rem; font-weight: 800; color: white; font-family: 'Outfit', sans-serif;
+        border: 3px solid rgba(99,102,241,0.4);
+    }
+    .profile-badges { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.75rem; }
+
+    .tabs { display: flex; gap: 0.25rem; margin: 2rem 0 1.5rem; border-bottom: 1px solid var(--border); }
+    .tab-btn {
+        padding: 0.7rem 1.25rem; border-radius: 8px 8px 0 0; font-weight: 600; font-size: 0.875rem;
+        color: var(--text-muted); background: none; border: none; cursor: pointer;
+        transition: var(--transition); border-bottom: 2px solid transparent; margin-bottom: -1px;
+    }
+    .tab-btn.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
+    .tab-btn:hover { color: var(--text-primary); }
+    .tab-panel { display: none; animation: fadeIn 0.3s ease; }
+    .tab-panel.active { display: block; }
+
+    .form-section { margin-bottom: 2rem; }
+    .form-section-title {
+        display: flex; align-items: center; gap: 0.5rem;
+        font-size: 0.82rem; font-weight: 700; text-transform: uppercase;
+        letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 1.25rem;
+        padding-bottom: 0.75rem; border-bottom: 1px solid var(--border);
+    }
+
+    /* Risk calculator */
+    .risk-panel {
+        background: var(--glass); border: 1px solid var(--glass-border); border-radius: var(--radius);
+        padding: 2rem;
+    }
+    .risk-big {
+        font-family: 'Outfit', sans-serif; font-size: 5rem; font-weight: 800;
+        line-height: 1; text-align: center; margin: 1rem 0;
+    }
+    .risk-bar-wrap { margin: 1.5rem 0; }
+    .risk-track { height: 12px; background: rgba(255,255,255,0.07); border-radius: 50px; position: relative; overflow: hidden; }
+    .risk-fill { height: 100%; border-radius: 50px; transition: width 1s cubic-bezier(.4,0,.2,1); }
+
+    .risk-zones { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-muted); margin-top: 0.4rem; }
+
+    .rec-item {
+        display: flex; align-items: flex-start; gap: 0.75rem;
+        background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.15);
+        border-radius: 10px; padding: 0.875rem; margin-bottom: 0.6rem; font-size: 0.875rem;
+        color: var(--text-secondary); animation: fadeInUp 0.3s ease;
+    }
+    .rec-item i { color: var(--accent-primary); margin-top: 2px; flex-shrink: 0; }
+
+    /* Stat summary */
+    .profile-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
+    .pstat {
+        background: var(--glass); border: 1px solid var(--glass-border); border-radius: var(--radius-sm);
+        padding: 1.25rem; text-align: center;
+    }
+    .pstat-val { font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 800; }
+    .pstat-lbl { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.25rem; }
+</style>
+{% endblock %}
 
 {% block content %}
-<h2 style="margin-bottom: 3rem; color: #1e3a8a; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 2.5rem;">👤 My Profile</h2>
-
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem;">
-    <div class="card">
-        <h3 style="color: #1e3a8a; margin-bottom: 2rem; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.5rem;">Account Information</h3>
-        <table style="width: 100%; border-collapse: collapse;">
-            <tr style="border-bottom: 2px solid #e0e7ff;">
-                <td style="padding: 1.2rem; font-weight: 700; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); color: #1e3a8a; width: 45%;">Username:</td>
-                <td style="padding: 1.2rem; color: #475569;">{{ user.username }}</td>
-            </tr>
-            <tr style="border-bottom: 2px solid #e0e7ff;">
-                <td style="padding: 1.2rem; font-weight: 700; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); color: #1e3a8a;">Email:</td>
-                <td style="padding: 1.2rem; color: #475569;">{{ user.email }}</td>
-            </tr>
-            <tr style="border-bottom: 2px solid #e0e7ff;">
-                <td style="padding: 1.2rem; font-weight: 700; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); color: #1e3a8a;">First Name:</td>
-                <td style="padding: 1.2rem; color: #475569;">{{ user.first_name|default:"Not set" }}</td>
-            </tr>
-            <tr style="border-bottom: 2px solid #e0e7ff;">
-                <td style="padding: 1.2rem; font-weight: 700; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); color: #1e3a8a;">Last Name:</td>
-                <td style="padding: 1.2rem; color: #475569;">{{ user.last_name|default:"Not set" }}</td>
-            </tr>
-            <tr>
-                <td style="padding: 1.2rem; font-weight: 700; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); color: #1e3a8a;">Member Since:</td>
-                <td style="padding: 1.2rem; color: #475569;">{{ user.date_joined|date:"M d, Y" }}</td>
-            </tr>
-        </table>
-    </div>
-    
-    <div class="card">
-        <h3 style="color: #1e3a8a; margin-bottom: 2rem; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.5rem;">Claims Summary</h3>
-        <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem;">
-            <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); padding: 2rem; border-radius: 12px; text-align: center; border-left: 5px solid #1e3a8a;">
-                <p style="color: #475569; margin-bottom: 1rem; font-family: 'Poppins', sans-serif; font-weight: 500; font-size: 1.1rem;">Total Claims Submitted</p>
-                <h3 style="color: #1e3a8a; font-size: 3rem; margin: 0; font-family: 'Poppins', sans-serif; font-weight: 700;">{{ user_claims }}</h3>
+<!-- Profile Hero -->
+<div class="profile-hero">
+    <div class="profile-inner">
+        <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+            <div class="profile-av-wrap">
+                <div class="profile-avatar">{{ user.username|first|upper }}</div>
             </div>
-            <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); padding: 2rem; border-radius: 12px; text-align: center; border-left: 5px solid #10b981;">
-                <p style="color: #475569; margin-bottom: 1rem; font-family: 'Poppins', sans-serif; font-weight: 500; font-size: 1.1rem;">Total Claimed Amount</p>
-                <h3 style="color: #10b981; font-size: 3rem; margin: 0; font-family: 'Poppins', sans-serif; font-weight: 700;">₹{{ total_claimed }}</h3>
+            <div>
+                <h1 style="font-size: 1.8rem; margin-bottom: 0.25rem;">{{ user.get_full_name|default:user.username }}</h1>
+                <div style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.75rem;">
+                    <i class="fas fa-envelope"></i> {{ user.email }}
+                    {% if profile.phone %} &nbsp;·&nbsp; <i class="fas fa-phone"></i> {{ profile.phone }}{% endif %}
+                    {% if profile.city %} &nbsp;·&nbsp; <i class="fas fa-map-marker-alt"></i> {{ profile.city }}{% if profile.state %}, {{ profile.state }}{% endif %}{% endif %}
+                </div>
+                <div class="profile-badges">
+                    <span class="badge badge-purple"><i class="fas fa-calendar-check"></i> Member since {{ user.date_joined|date:"M Y" }}</span>
+                    {% if profile.preferred_language %}
+                    <span class="badge badge-info"><i class="fas fa-globe"></i> {{ profile.get_preferred_language_display }}</span>
+                    {% endif %}
+                    <span class="badge {% if risk_category == 'Low' %}badge-success{% elif risk_category == 'Medium' %}badge-warning{% else %}badge-danger{% endif %}">
+                        <i class="fas fa-heartbeat"></i> Risk: {{ risk_category }} ({{ risk_score|floatformat:0 }}/100)
+                    </span>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="card" style="margin-top: 2.5rem;">
-    <h3 style="color: #1e3a8a; margin-bottom: 2rem; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.5rem;">Quick Actions</h3>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem;">
-        <a href="{% url 'claim_list' %}" class="btn" style="text-align: center; padding: 1.1rem; font-size: 1rem;">View All Claims</a>
-        <a href="{% url 'policy_list' %}" class="btn" style="text-align: center; padding: 1.1rem; font-size: 1rem;">View Policies</a>
-        <a href="{% url 'submit_claim' %}" class="btn btn-secondary" style="text-align: center; padding: 1.1rem; font-size: 1rem;">Submit New Claim</a>
+<div class="profile-inner" style="padding-top: 0;">
+    <!-- Summary stats -->
+    <div class="profile-stats" style="margin-top: 2rem;">
+        <div class="pstat">
+            <div class="pstat-val" style="color: var(--accent-primary);">{{ user_claims }}</div>
+            <div class="pstat-lbl">Total Claims</div>
+        </div>
+        <div class="pstat">
+            <div class="pstat-val" style="color: var(--accent-emerald);">₹{{ total_claimed|default:0 }}</div>
+            <div class="pstat-lbl">Total Claimed</div>
+        </div>
+        <div class="pstat">
+            <div class="pstat-val" style="color: {% if risk_score < 25 %}#10b981{% elif risk_score < 50 %}#f59e0b{% else %}#f43f5e{% endif %};">
+                {{ risk_score|floatformat:0 }}
+            </div>
+            <div class="pstat-lbl">Risk Score</div>
+        </div>
     </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('personal', this)"><i class="fas fa-user"></i> Personal Info</button>
+        <button class="tab-btn" onclick="switchTab('health', this)"><i class="fas fa-heartbeat"></i> Health Profile</button>
+        <button class="tab-btn" onclick="switchTab('risk', this)"><i class="fas fa-chart-bar"></i> Risk Assessment</button>
+        <button class="tab-btn" onclick="switchTab('prefs', this)"><i class="fas fa-cog"></i> Preferences</button>
+    </div>
+
+    <form method="post" action="{% url 'profile' %}">
+        {% csrf_token %}
+
+        <!-- Personal Info Tab -->
+        <div class="tab-panel active" id="tab-personal">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;" >
+                <div>
+                    <div class="form-section-title"><i class="fas fa-id-card"></i> Basic Information</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">First Name</label>
+                            <input type="text" name="first_name" class="form-control" value="{{ user.first_name }}" placeholder="First name">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Last Name</label>
+                            <input type="text" name="last_name" class="form-control" value="{{ user.last_name }}" placeholder="Last name">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" name="email" class="form-control" value="{{ user.email }}" placeholder="Email">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" name="phone" class="form-control" value="{{ profile.phone }}" placeholder="+91 98765 43210">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">Date of Birth</label>
+                            <input type="date" name="date_of_birth" class="form-control" value="{{ profile.date_of_birth|date:'Y-m-d'|default:'' }}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Gender</label>
+                            <select name="gender" class="form-select">
+                                <option value="">Select gender</option>
+                                <option value="M" {% if profile.gender == 'M' %}selected{% endif %}>Male</option>
+                                <option value="F" {% if profile.gender == 'F' %}selected{% endif %}>Female</option>
+                                <option value="O" {% if profile.gender == 'O' %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Blood Group</label>
+                        <select name="blood_group" class="form-select">
+                            <option value="">Select blood group</option>
+                            {% for bg, label in profile.BLOOD_GROUP_CHOICES %}
+                            <option value="{{ bg }}" {% if profile.blood_group == bg %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <div class="form-section-title"><i class="fas fa-map-marker-alt"></i> Address</div>
+                    <div class="form-group">
+                        <label class="form-label">Street Address</label>
+                        <textarea name="address" class="form-control" rows="2" placeholder="Street address">{{ profile.address }}</textarea>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">City</label>
+                            <input type="text" name="city" class="form-control" value="{{ profile.city }}" placeholder="City">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">State</label>
+                            <input type="text" name="state" class="form-control" value="{{ profile.state }}" placeholder="State">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">PIN Code</label>
+                        <input type="text" name="pincode" class="form-control" value="{{ profile.pincode }}" placeholder="560001">
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Personal Info</button>
+        </div>
+
+        <!-- Health Profile Tab -->
+        <div class="tab-panel" id="tab-health">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <div>
+                    <div class="form-section-title"><i class="fas fa-notes-medical"></i> Health Conditions</div>
+                    <p style="font-size: 0.83rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                        This information helps us calculate your risk score and recommend the right plan.
+                    </p>
+                    <div style="display: flex; flex-direction: column; gap: 0.875rem;">
+                        <label class="form-check" style="padding: 0.875rem; background: var(--glass); border: 1px solid var(--border); border-radius: 10px;">
+                            <input type="checkbox" class="form-check-input" name="is_smoker" {% if profile.is_smoker %}checked{% endif %}>
+                            <div>
+                                <span class="form-check-label" style="font-weight: 600;">Smoker</span>
+                                <div style="font-size: 0.78rem; color: var(--text-muted);">Currently smoking tobacco products</div>
+                            </div>
+                        </label>
+                        <label class="form-check" style="padding: 0.875rem; background: var(--glass); border: 1px solid var(--border); border-radius: 10px;">
+                            <input type="checkbox" class="form-check-input" name="has_diabetes" {% if profile.has_diabetes %}checked{% endif %}>
+                            <div>
+                                <span class="form-check-label" style="font-weight: 600;">Diabetes</span>
+                                <div style="font-size: 0.78rem; color: var(--text-muted);">Diagnosed with Type 1 or Type 2 diabetes</div>
+                            </div>
+                        </label>
+                        <label class="form-check" style="padding: 0.875rem; background: var(--glass); border: 1px solid var(--border); border-radius: 10px;">
+                            <input type="checkbox" class="form-check-input" name="has_hypertension" {% if profile.has_hypertension %}checked{% endif %}>
+                            <div>
+                                <span class="form-check-label" style="font-weight: 600;">Hypertension</span>
+                                <div style="font-size: 0.78rem; color: var(--text-muted);">High blood pressure condition</div>
+                            </div>
+                        </label>
+                        <label class="form-check" style="padding: 0.875rem; background: var(--glass); border: 1px solid var(--border); border-radius: 10px;">
+                            <input type="checkbox" class="form-check-input" name="has_heart_condition" {% if profile.has_heart_condition %}checked{% endif %}>
+                            <div>
+                                <span class="form-check-label" style="font-weight: 600;">Heart Condition</span>
+                                <div style="font-size: 0.78rem; color: var(--text-muted);">Any diagnosed cardiovascular condition</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <div class="form-section-title"><i class="fas fa-dumbbell"></i> Lifestyle</div>
+                    <div class="form-group">
+                        <label class="form-label">BMI (Body Mass Index)</label>
+                        <input type="number" name="bmi" class="form-control" step="0.1" min="10" max="60"
+                            value="{{ profile.bmi|default:'' }}" placeholder="e.g. 22.5">
+                        <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.3rem;">
+                            Normal: 18.5–24.9 | Overweight: 25–29.9 | Obese: 30+
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Exercise Frequency</label>
+                        <select name="exercise_frequency" class="form-select">
+                            <option value="Never" {% if profile.exercise_frequency == 'Never' %}selected{% endif %}>Never</option>
+                            <option value="Rarely" {% if profile.exercise_frequency == 'Rarely' %}selected{% endif %}>Rarely (once a month)</option>
+                            <option value="Weekly" {% if profile.exercise_frequency == 'Weekly' %}selected{% endif %}>Weekly (2-3 times/week)</option>
+                            <option value="Daily" {% if profile.exercise_frequency == 'Daily' %}selected{% endif %}>Daily</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="margin-top: 1rem;"><i class="fas fa-save"></i> Save Health Profile</button>
+        </div>
+
+        <!-- Risk Assessment Tab -->
+        <div class="tab-panel" id="tab-risk">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <div class="risk-panel">
+                    <h3 style="text-align: center; margin-bottom: 0.5rem;">Your Risk Score</h3>
+                    <div class="risk-big" id="riskDisplay"
+                        style="color: {% if risk_score < 25 %}#10b981{% elif risk_score < 50 %}#f59e0b{% elif risk_score < 75 %}#f43f5e{% else %}#ef4444{% endif %};">
+                        {{ risk_score|floatformat:0 }}
+                    </div>
+                    <div style="text-align: center; margin-bottom: 1.5rem;">
+                        <span class="risk-badge {% if risk_category == 'Low' %}risk-low{% elif risk_category == 'Medium' %}risk-medium{% else %}risk-high{% endif %}" id="riskCategoryBadge">
+                            <i class="fas fa-circle" style="font-size: 0.5rem;"></i>
+                            {{ risk_category }} Risk
+                        </span>
+                    </div>
+                    <div class="risk-bar-wrap">
+                        <div class="risk-track">
+                            <div class="risk-fill" id="riskFill"
+                                style="width: {{ risk_score }}%; background: {% if risk_score < 25 %}linear-gradient(90deg, #10b981, #34d399){% elif risk_score < 50 %}linear-gradient(90deg, #f59e0b, #fbbf24){% else %}linear-gradient(90deg, #f43f5e, #fb7185){% endif %};">
+                            </div>
+                        </div>
+                        <div class="risk-zones">
+                            <span>0</span><span>Low</span><span>Medium</span><span>High</span><span>100</span>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1.5rem;">
+                        <div style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em;">
+                            <i class="fas fa-lightbulb" style="color: var(--accent-amber);"></i> Recommendations
+                        </div>
+                        <div id="riskRecs">
+                            {% if profile.is_smoker %}
+                            <div class="rec-item"><i class="fas fa-arrow-right"></i> Quit smoking to significantly reduce your risk score.</div>
+                            {% endif %}
+                            {% if profile.bmi and profile.bmi > 25 %}
+                            <div class="rec-item"><i class="fas fa-arrow-right"></i> Maintain a healthy BMI through diet and exercise.</div>
+                            {% endif %}
+                            {% if profile.exercise_frequency in 'NeverRarely' %}
+                            <div class="rec-item"><i class="fas fa-arrow-right"></i> Exercise at least 3× per week to lower health risks.</div>
+                            {% endif %}
+                            {% if not profile.is_smoker and not profile.has_diabetes and not profile.has_hypertension %}
+                            <div class="rec-item"><i class="fas fa-check-circle" style="color: var(--accent-emerald);"></i> Great profile! Keep up your healthy lifestyle.</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="form-section-title"><i class="fas fa-sliders-h"></i> Recalculate Instantly</div>
+                    <p style="font-size: 0.83rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                        Adjust values to see how lifestyle changes affect your score in real-time.
+                    </p>
+                    <div class="form-group">
+                        <label class="form-label">Date of Birth</label>
+                        <input type="date" id="calcDOB" class="form-control" value="{{ profile.date_of_birth|date:'Y-m-d'|default:'' }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">BMI</label>
+                        <input type="number" id="calcBMI" class="form-control" step="0.1" min="10" max="60" value="{{ profile.bmi|default:'' }}" placeholder="22.5">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Exercise Frequency</label>
+                        <select id="calcExercise" class="form-select">
+                            <option value="Never" {% if profile.exercise_frequency == 'Never' %}selected{% endif %}>Never</option>
+                            <option value="Rarely" {% if profile.exercise_frequency == 'Rarely' %}selected{% endif %}>Rarely</option>
+                            <option value="Weekly" {% if profile.exercise_frequency == 'Weekly' %}selected{% endif %}>Weekly</option>
+                            <option value="Daily" {% if profile.exercise_frequency == 'Daily' %}selected{% endif %}>Daily</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.25rem;">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" id="calcSmoker" {% if profile.is_smoker %}checked{% endif %}>
+                            <span class="form-check-label">Smoker</span>
+                        </label>
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" id="calcDiabetes" {% if profile.has_diabetes %}checked{% endif %}>
+                            <span class="form-check-label">Diabetes</span>
+                        </label>
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" id="calcHypertension" {% if profile.has_hypertension %}checked{% endif %}>
+                            <span class="form-check-label">Hypertension</span>
+                        </label>
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" id="calcHeart" {% if profile.has_heart_condition %}checked{% endif %}>
+                            <span class="form-check-label">Heart Condition</span>
+                        </label>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="calcBtn" onclick="recalculateRisk()">
+                        <i class="fas fa-calculator"></i> Recalculate Risk Score
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preferences Tab -->
+        <div class="tab-panel" id="tab-prefs">
+            <div style="max-width: 500px;">
+                <div class="form-section-title"><i class="fas fa-globe"></i> Language & Display</div>
+                <div class="form-group">
+                    <label class="form-label">Preferred Language</label>
+                    <select name="preferred_language" class="form-select">
+                        <option value="en" {% if profile.preferred_language == 'en' %}selected{% endif %}>🌐 English</option>
+                        <option value="hi" {% if profile.preferred_language == 'hi' %}selected{% endif %}>🇮🇳 Hindi (हिन्दी)</option>
+                        <option value="kn" {% if profile.preferred_language == 'kn' %}selected{% endif %}>ಕನ್ನಡ (Kannada)</option>
+                        <option value="ta" {% if profile.preferred_language == 'ta' %}selected{% endif %}>தமிழ் (Tamil)</option>
+                        <option value="te" {% if profile.preferred_language == 'te' %}selected{% endif %}>తెలుగు (Telugu)</option>
+                        <option value="mr" {% if profile.preferred_language == 'mr' %}selected{% endif %}>मराठी (Marathi)</option>
+                        <option value="es" {% if profile.preferred_language == 'es' %}selected{% endif %}>🇪🇸 Español</option>
+                        <option value="fr" {% if profile.preferred_language == 'fr' %}selected{% endif %}>🇫🇷 Français</option>
+                        <option value="de" {% if profile.preferred_language == 'de' %}selected{% endif %}>🇩🇪 Deutsch</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Preferences</button>
+            </div>
+        </div>
+
+    </form>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function switchTab(id, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    btn.classList.add('active');
+}
+
+function recalculateRisk() {
+    const btn = document.getElementById('calcBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Calculating...';
+
+    fetch('{% url "risk_score_api" %}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+        body: JSON.stringify({
+            date_of_birth: document.getElementById('calcDOB').value,
+            bmi: document.getElementById('calcBMI').value || null,
+            exercise_frequency: document.getElementById('calcExercise').value,
+            is_smoker: document.getElementById('calcSmoker').checked,
+            has_diabetes: document.getElementById('calcDiabetes').checked,
+            has_hypertension: document.getElementById('calcHypertension').checked,
+            has_heart_condition: document.getElementById('calcHeart').checked,
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            const score = data.risk_score;
+            const category = data.risk_category;
+            const color = score < 25 ? '#10b981' : score < 50 ? '#f59e0b' : score < 75 ? '#f43f5e' : '#ef4444';
+            const fillBg = score < 25
+                ? 'linear-gradient(90deg, #10b981, #34d399)'
+                : score < 50 ? 'linear-gradient(90deg, #f59e0b, #fbbf24)'
+                : 'linear-gradient(90deg, #f43f5e, #fb7185)';
+
+            document.getElementById('riskDisplay').textContent = Math.round(score);
+            document.getElementById('riskDisplay').style.color = color;
+            document.getElementById('riskFill').style.width = score + '%';
+            document.getElementById('riskFill').style.background = fillBg;
+
+            const badge = document.getElementById('riskCategoryBadge');
+            badge.textContent = category + ' Risk';
+            badge.className = 'risk-badge ' + (category === 'Low' ? 'risk-low' : category === 'Medium' ? 'risk-medium' : 'risk-high');
+
+            const recsDiv = document.getElementById('riskRecs');
+            recsDiv.innerHTML = data.recommendations.map(r =>
+                `<div class="rec-item"><i class="fas fa-arrow-right"></i> ${r}</div>`
+            ).join('');
+        }
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-check"></i> Updated!';
+        setTimeout(() => { btn.innerHTML = '<i class="fas fa-calculator"></i> Recalculate Risk Score'; }, 2000);
+    })
+    .catch(() => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-calculator"></i> Recalculate Risk Score';
+    });
+}
+</script>
 {% endblock %}
