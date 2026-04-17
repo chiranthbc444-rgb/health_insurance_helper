@@ -1,0 +1,8 @@
+# AI Chatbot and Document Processing Requirements
+openai>=1.0.0
+google-generativeai>=0.3.0
+pytesseract>=0.3.10
+Pillow>=9.0.0
+PyMuPDF>=1.22.0  # For PDF processing
+python-magic>=0.4.27  # File type detection
+requests>=2.28.0

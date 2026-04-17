@@ -1,0 +1,320 @@
+{% extends 'insurance_app/base_modern.html' %}
+{% block title %}HealthGuard — AI-Powered Health Insurance{% endblock %}
+
+{% block content %}
+<style>
+    .hero { position: relative; padding: 7rem 0 5rem; overflow: hidden; }
+    .hero-bg {
+        position: absolute; inset: 0;
+        background: radial-gradient(ellipse 70% 60% at 50% 40%, rgba(99,102,241,0.18) 0%, transparent 70%);
+    }
+    .hero-content { position: relative; z-index: 2; text-align: center; max-width: 800px; margin: 0 auto; padding: 0 1.5rem; }
+    .hero-eyebrow {
+        display: inline-flex; align-items: center; gap: 0.5rem;
+        background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.25);
+        color: #a5b4fc; padding: 0.4rem 1rem; border-radius: 50px;
+        font-size: 0.8rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+        margin-bottom: 1.5rem; animation: fadeIn 0.6s ease;
+    }
+    .hero h1 {
+        font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 800;
+        letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 1.5rem;
+        animation: fadeInUp 0.7s ease 0.1s both;
+    }
+    .hero-grad { background: var(--gradient-hero); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero p {
+        font-size: 1.2rem; color: var(--text-secondary); margin-bottom: 2.5rem;
+        max-width: 600px; margin-left: auto; margin-right: auto;
+        animation: fadeInUp 0.7s ease 0.2s both;
+    }
+    .hero-cta {
+        display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;
+        animation: fadeInUp 0.7s ease 0.3s both;
+    }
+    .hero-metrics {
+        display: flex; justify-content: center; gap: 3rem; margin-top: 4rem;
+        padding: 2rem; border-top: 1px solid var(--border);
+        animation: fadeInUp 0.7s ease 0.4s both; flex-wrap: wrap; gap: 2rem;
+    }
+    .metric { text-align: center; }
+    .metric-num {
+        font-family: 'Outfit', sans-serif; font-size: 2.5rem; font-weight: 800;
+        background: var(--gradient-hero); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .metric-label { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem; }
+
+    /* Features */
+    .features { padding: 5rem 0; }
+    .feature-card {
+        background: var(--glass); border: 1px solid var(--glass-border);
+        border-radius: var(--radius); padding: 2rem;
+        transition: var(--transition); position: relative; overflow: hidden;
+    }
+    .feature-card::after {
+        content: ''; position: absolute; inset: 0;
+        background: var(--gradient-card); opacity: 0; transition: var(--transition);
+    }
+    .feature-card:hover::after { opacity: 1; }
+    .feature-card:hover { transform: translateY(-6px); border-color: rgba(99,102,241,0.35); box-shadow: var(--shadow-glow); }
+    .feature-icon {
+        width: 56px; height: 56px; border-radius: 14px;
+        display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
+        margin-bottom: 1.25rem; position: relative; z-index: 1;
+    }
+    .feature-card h3 { font-size: 1.15rem; margin-bottom: 0.6rem; position: relative; z-index: 1; }
+    .feature-card p { color: var(--text-muted); font-size: 0.875rem; line-height: 1.7; position: relative; z-index: 1; }
+
+    /* Plans */
+    .plans { padding: 5rem 0; }
+    .plan-card {
+        background: var(--glass); border: 1px solid var(--glass-border);
+        border-radius: var(--radius-lg); padding: 2.5rem; text-align: center;
+        position: relative; transition: var(--transition); overflow: hidden;
+    }
+    .plan-card.featured {
+        background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.1));
+        border-color: rgba(99,102,241,0.4);
+    }
+    .plan-card.featured::before {
+        content: 'Most Popular'; position: absolute; top: 1.25rem; right: 1.25rem;
+        background: var(--gradient-hero); color: white; padding: 0.25rem 0.875rem;
+        border-radius: 50px; font-size: 0.72rem; font-weight: 700;
+    }
+    .plan-card:hover { transform: translateY(-8px); box-shadow: 0 20px 60px rgba(99,102,241,0.2); }
+    .plan-name { font-size: 1.1rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.08em; }
+    .plan-price { font-family: 'Outfit', sans-serif; font-size: 3.5rem; font-weight: 800; margin: 1rem 0; line-height: 1; }
+    .plan-price small { font-size: 1rem; color: var(--text-muted); font-weight: 400; }
+    .plan-coverage { color: var(--text-muted); font-size: 0.875rem; margin-bottom: 2rem; }
+    .plan-features { list-style: none; text-align: left; margin-bottom: 2rem; }
+    .plan-features li {
+        display: flex; align-items: center; gap: 0.6rem;
+        padding: 0.5rem 0; color: var(--text-secondary); font-size: 0.875rem;
+        border-bottom: 1px solid var(--border);
+    }
+    .plan-features li:last-child { border-bottom: none; }
+    .plan-features li i { color: var(--accent-emerald); width: 16px; }
+
+    /* How it works */
+    .steps { padding: 5rem 0; }
+    .step { text-align: center; padding: 2rem 1.5rem; position: relative; }
+    .step-num {
+        width: 64px; height: 64px; border-radius: 50%;
+        background: var(--gradient-hero); display: flex; align-items: center; justify-content: center;
+        font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 800; color: white;
+        margin: 0 auto 1.5rem;
+    }
+    .step h3 { font-size: 1.1rem; margin-bottom: 0.6rem; }
+    .step p { color: var(--text-muted); font-size: 0.875rem; line-height: 1.7; }
+
+    /* CTA Banner */
+    .cta-banner {
+        background: var(--gradient-hero);
+        border-radius: var(--radius-lg); padding: 4rem 3rem;
+        text-align: center; position: relative; overflow: hidden; margin: 5rem 0;
+    }
+    .cta-banner::before {
+        content: ''; position: absolute;
+        top: -50px; right: -80px; width: 300px; height: 300px;
+        background: rgba(255,255,255,0.08); border-radius: 50%;
+    }
+    .cta-banner h2 { font-size: 2.5rem; color: white; margin-bottom: 1rem; }
+    .cta-banner p { color: rgba(255,255,255,0.8); font-size: 1.1rem; margin-bottom: 2rem; }
+    .btn-white { background: white; color: var(--accent-primary); font-weight: 700; }
+    .btn-white:hover { background: rgba(255,255,255,0.9); transform: translateY(-2px); color: var(--accent-primary); }
+</style>
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+        <div class="hero-eyebrow">
+            <i class="fas fa-sparkles"></i>
+            AI-Powered Health Insurance Platform
+        </div>
+        <h1>
+            Protect Your <span class="hero-grad">Health & Wealth</span><br>
+            with Smart Insurance
+        </h1>
+        <p>Next-generation health insurance with real-time risk scoring, AI-assisted claim processing, and comprehensive coverage for you and your family.</p>
+        <div class="hero-cta">
+            <a href="{% url 'register' %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-rocket"></i> Get Started Free
+            </a>
+            <a href="{% url 'policy_list' %}" class="btn btn-ghost btn-lg">
+                <i class="fas fa-shield-alt"></i> View Plans
+            </a>
+        </div>
+        <div class="hero-metrics">
+            <div class="metric">
+                <div class="metric-num">{{ users_count }}+</div>
+                <div class="metric-label">Members Protected</div>
+            </div>
+            <div class="metric">
+                <div class="metric-num">{{ claims_count }}+</div>
+                <div class="metric-label">Claims Processed</div>
+            </div>
+            <div class="metric">
+                <div class="metric-num">{{ policies_count }}</div>
+                <div class="metric-label">Plan Options</div>
+            </div>
+            <div class="metric">
+                <div class="metric-num">99%</div>
+                <div class="metric-label">Satisfaction Rate</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features -->
+<section class="features">
+    <div class="container">
+        <div style="text-align: center; margin-bottom: 3.5rem;">
+            <div class="section-tag"><i class="fas fa-star"></i> Why HealthGuard</div>
+            <h2 class="section-heading">Everything You Need for<br>Complete Health Protection</h2>
+            <p class="section-sub" style="margin: 0 auto;">From intelligent risk assessment to AI-powered claims — we have you covered at every step.</p>
+        </div>
+        <div class="grid grid-3">
+            <div class="feature-card">
+                <div class="feature-icon" style="background: rgba(99,102,241,0.15); color: #818cf8;">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h3>AI Risk Assessment</h3>
+                <p>Our intelligent engine analyzes your health data, lifestyle, and history to generate a personalized risk score and recommendations.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon" style="background: rgba(16,185,129,0.15); color: #34d399;">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>Real-Time Analytics</h3>
+                <p>Interactive dashboards showing your coverage utilization, claim trends, and financial health at a glance.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon" style="background: rgba(6,182,212,0.15); color: #22d3ee;">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h3>AI Chat Assistant</h3>
+                <p>24/7 AI-powered chatbot helps you understand your coverage, analyze documents, and guide you through claims.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon" style="background: rgba(245,158,11,0.15); color: #fbbf24;">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h3>Smart Document OCR</h3>
+                <p>Upload medical bills and policy documents — our AI extracts and analyzes information automatically.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon" style="background: rgba(244,63,94,0.15); color: #fb7185;">
+                    <i class="fas fa-globe"></i>
+                </div>
+                <h3>Multi-Language Support</h3>
+                <p>Full support for English, Hindi, Kannada, Tamil, Telugu, and more — serving India and beyond.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon" style="background: rgba(139,92,246,0.15); color: #c4b5fd;">
+                    <i class="fas fa-shield-check"></i>
+                </div>
+                <h3>Instant Claims</h3>
+                <p>Submit and track claims in real-time with automated eligibility checks and faster approvals.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Plans -->
+<section class="plans">
+    <div class="container">
+        <div style="text-align: center; margin-bottom: 3.5rem;">
+            <div class="section-tag"><i class="fas fa-shield-alt"></i> Pricing</div>
+            <h2 class="section-heading">Simple, Transparent Pricing</h2>
+            <p class="section-sub" style="margin: 0 auto;">Choose the plan that fits your needs. No hidden fees, no surprises.</p>
+        </div>
+        <div class="grid grid-3">
+            <div class="plan-card">
+                <div class="plan-name">Basic</div>
+                <div class="plan-price">₹150 <small>/month</small></div>
+                <div class="plan-coverage">Coverage up to ₹1,00,000</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> Individual coverage</li>
+                    <li><i class="fas fa-check"></i> Hospitalization expenses</li>
+                    <li><i class="fas fa-check"></i> Pre & post hospitalization</li>
+                    <li><i class="fas fa-check"></i> Online claim submission</li>
+                    <li><i class="fas fa-times" style="color: var(--text-muted);"></i> AI document analysis</li>
+                    <li><i class="fas fa-times" style="color: var(--text-muted);"></i> Family coverage</li>
+                </ul>
+                <a href="{% url 'register' %}" class="btn btn-ghost" style="width: 100%; justify-content: center;">Get Basic</a>
+            </div>
+            <div class="plan-card featured">
+                <div class="plan-name">Premium</div>
+                <div class="plan-price">₹300 <small>/month</small></div>
+                <div class="plan-coverage">Coverage up to ₹5,00,000</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> Individual coverage</li>
+                    <li><i class="fas fa-check"></i> All Basic features</li>
+                    <li><i class="fas fa-check"></i> AI risk assessment</li>
+                    <li><i class="fas fa-check"></i> Document analysis</li>
+                    <li><i class="fas fa-check"></i> Priority claim processing</li>
+                    <li><i class="fas fa-times" style="color: var(--text-muted);"></i> Family coverage</li>
+                </ul>
+                <a href="{% url 'register' %}" class="btn btn-primary" style="width: 100%; justify-content: center;">Get Premium</a>
+            </div>
+            <div class="plan-card">
+                <div class="plan-name">Family</div>
+                <div class="plan-price">₹500 <small>/month</small></div>
+                <div class="plan-coverage">Coverage up to ₹10,00,000</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> Family of 4 coverage</li>
+                    <li><i class="fas fa-check"></i> All Premium features</li>
+                    <li><i class="fas fa-check"></i> AI assistant priority</li>
+                    <li><i class="fas fa-check"></i> Maternity coverage</li>
+                    <li><i class="fas fa-check"></i> Dental & vision add-on</li>
+                    <li><i class="fas fa-check"></i> Dedicated advisor</li>
+                </ul>
+                <a href="{% url 'register' %}" class="btn btn-ghost" style="width: 100%; justify-content: center;">Get Family</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How it works -->
+<section class="steps">
+    <div class="container">
+        <div style="text-align: center; margin-bottom: 3.5rem;">
+            <div class="section-tag"><i class="fas fa-list-ol"></i> How It Works</div>
+            <h2 class="section-heading">Get Covered in Minutes</h2>
+        </div>
+        <div class="grid grid-3">
+            <div class="step">
+                <div class="step-num">1</div>
+                <h3>Create your account</h3>
+                <p>Sign up in seconds and complete your health profile to unlock personalized recommendations.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <h3>Get your risk score</h3>
+                <p>Our AI analyzes your health data and lifestyle to give you a personalized risk assessment and plan suggestions.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <h3>Start your journey</h3>
+                <p>Choose your plan, submit claims digitally, and use our AI assistant for guidance whenever you need it.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Banner -->
+<div class="container">
+    <div class="cta-banner">
+        <h2>Ready to Protect Your Health?</h2>
+        <p>Join thousands of families who trust HealthGuard for smart, affordable coverage.</p>
+        <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+            <a href="{% url 'register' %}" class="btn btn-white btn-lg">
+                <i class="fas fa-user-plus"></i> Create Free Account
+            </a>
+            <a href="{% url 'premium_calculator' %}" class="btn btn-lg" style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3);">
+                <i class="fas fa-calculator"></i> Calculate Premium
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="{{ request.session.language|default:'en' }}" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="HealthGuard - Advanced AI-powered health insurance platform">
+    <title>{% block title %}HealthGuard Insurance{% endblock %}</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <style>
+        :root {
+            --bg-primary: #0a0f1e;
+            --bg-secondary: #111827;
+            --bg-card: rgba(255,255,255,0.04);
+            --bg-card-hover: rgba(255,255,255,0.08);
+            --accent-primary: #6366f1;
+            --accent-secondary: #8b5cf6;
+            --accent-emerald: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-rose: #f43f5e;
+            --accent-cyan: #06b6d4;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: rgba(255,255,255,0.08);
+            --border-focus: rgba(99,102,241,0.6);
+            --glass: rgba(255,255,255,0.05);
+            --glass-border: rgba(255,255,255,0.1);
+            --shadow-glow: 0 0 40px rgba(99,102,241,0.15);
+            --shadow-card: 0 4px 24px rgba(0,0,0,0.4);
+            --gradient-hero: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%);
+            --gradient-card: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.05));
+            --radius: 16px;
+            --radius-sm: 10px;
+            --radius-lg: 24px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        /* ─── Animated Background ─── */
+        .bg-mesh {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: -1;
+            background:
+                radial-gradient(ellipse 80% 50% at 20% 40%, rgba(99,102,241,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 80% 20%, rgba(139,92,246,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 70% 60% at 60% 80%, rgba(6,182,212,0.08) 0%, transparent 60%),
+                #0a0f1e;
+        }
+
+        /* ─── Navbar ─── */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(10,15,30,0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0;
+        }
+
+        .navbar-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 68px;
+            gap: 2rem;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            text-decoration: none;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+            flex-shrink: 0;
+        }
+
+        .brand-icon {
+            width: 38px;
+            height: 38px;
+            background: var(--gradient-hero);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: white;
+        }
+
+        .brand-gradient {
+            background: var(--gradient-hero);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            list-style: none;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 0.5rem 0.875rem;
+            border-radius: 8px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            white-space: nowrap;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--text-primary);
+            background: var(--bg-card-hover);
+        }
+
+        .nav-links a.active {
+            color: var(--accent-primary);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        /* Language Selector */
+        .lang-select {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            border-radius: 8px;
+            padding: 0.4rem 0.7rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .lang-select:focus { outline: none; border-color: var(--accent-primary); }
+
+        /* User dropdown */
+        .user-menu {
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--gradient-hero);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: white;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: var(--transition);
+        }
+
+        .user-avatar:hover {
+            border-color: var(--accent-primary);
+            transform: scale(1.05);
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            min-width: 200px;
+            padding: 0.5rem;
+            display: none;
+            box-shadow: var(--shadow-card);
+            animation: fadeInDown 0.2s ease;
+        }
+
+        .user-dropdown.show { display: block; }
+
+        .user-dropdown a {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.6rem 0.875rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            transition: var(--transition);
+        }
+
+        .user-dropdown a:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+        }
+
+        .user-dropdown hr { border-color: var(--border); margin: 0.3rem 0; }
+
+        .dropdown-user-info {
+            padding: 0.75rem 0.875rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 0.3rem;
+        }
+
+        .dropdown-user-info .name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .dropdown-user-info .email {
+            color: var(--text-muted);
+            font-size: 0.78rem;
+        }
+
+        /* ─── Buttons ─── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.25rem;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Inter', sans-serif;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--gradient-hero);
+            color: white;
+            box-shadow: 0 4px 15px rgba(99,102,241,0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99,102,241,0.45);
+            color: white;
+        }
+
+        .btn-ghost {
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-ghost:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+            border-color: var(--accent-primary);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f43f5e, #e11d48);
+            color: white;
+        }
+
+        .btn-danger:hover { transform: translateY(-1px); }
+
+        .btn-sm { padding: 0.4rem 0.875rem; font-size: 0.82rem; }
+        .btn-lg { padding: 0.875rem 2rem; font-size: 1rem; }
+
+        /* ─── Cards ─── */
+        .card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            border-color: rgba(99,102,241,0.3);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .card-body { padding: 1.5rem; }
+        .card-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* ─── Stat Cards ─── */
+        .stat-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--gradient-hero);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(99,102,241,0.4);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 0.4rem;
+        }
+
+        .stat-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .stat-change {
+            font-size: 0.78rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-change.up { color: var(--accent-emerald); }
+        .stat-change.down { color: var(--accent-rose); }
+
+        /* ─── Risk Score ─── */
+        .risk-meter {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            margin: 0 auto;
+        }
+
+        .risk-meter svg { transform: rotate(-90deg); }
+
+        .risk-score-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .risk-number {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .risk-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.35rem 0.875rem;
+            border-radius: 50px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .risk-low { background: rgba(16,185,129,0.15); color: #10b981; }
+        .risk-medium { background: rgba(245,158,11,0.15); color: #f59e0b; }
+        .risk-high { background: rgba(244,63,94,0.15); color: #f43f5e; }
+        .risk-critical { background: rgba(220,38,38,0.2); color: #ef4444; }
+
+        /* ─── Forms ─── */
+        .form-group { margin-bottom: 1.25rem; }
+
+        .form-label {
+            display: block;
+            font-size: 0.83rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-control, .form-select {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            transition: var(--transition);
+        }
+
+        .form-control:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            background: rgba(99,102,241,0.08);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+        }
+
+        .form-control::placeholder { color: var(--text-muted); }
+
+        .form-select option { background: var(--bg-secondary); color: var(--text-primary); }
+
+        .form-check {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            cursor: pointer;
+        }
+
+        .form-check-input {
+            width: 18px;
+            height: 18px;
+            border-radius: 5px;
+            accent-color: var(--accent-primary);
+            cursor: pointer;
+        }
+
+        .form-check-label {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        /* ─── Alerts ─── */
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            animation: slideInDown 0.3s ease;
+        }
+
+        .alert-success {
+            background: rgba(16,185,129,0.12);
+            border: 1px solid rgba(16,185,129,0.3);
+            color: #34d399;
+        }
+
+        .alert-danger, .alert-error {
+            background: rgba(244,63,94,0.12);
+            border: 1px solid rgba(244,63,94,0.3);
+            color: #fb7185;
+        }
+
+        .alert-warning {
+            background: rgba(245,158,11,0.12);
+            border: 1px solid rgba(245,158,11,0.3);
+            color: #fbbf24;
+        }
+
+        .alert-info {
+            background: rgba(6,182,212,0.12);
+            border: 1px solid rgba(6,182,212,0.3);
+            color: #22d3ee;
+        }
+
+        /* ─── Badges ─── */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.25rem 0.65rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success { background: rgba(16,185,129,0.2); color: #10b981; }
+        .badge-warning { background: rgba(245,158,11,0.2); color: #f59e0b; }
+        .badge-danger { background: rgba(244,63,94,0.2); color: #f43f5e; }
+        .badge-info { background: rgba(6,182,212,0.2); color: #06b6d4; }
+        .badge-purple { background: rgba(139,92,246,0.2); color: #a78bfa; }
+
+        /* ─── Progress Bar ─── */
+        .progress {
+            height: 8px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 50px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 50px;
+            background: var(--gradient-hero);
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ─── Tables ─── */
+        table { width: 100%; border-collapse: collapse; }
+
+        th {
+            padding: 0.875rem 1rem;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 1rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+
+        tr:hover td { background: rgba(99,102,241,0.04); }
+
+        /* ─── Footer ─── */
+        footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            padding: 3rem 0 1.5rem;
+            margin-top: 6rem;
+        }
+
+        .footer-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-brand p {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-top: 0.75rem;
+            line-height: 1.7;
+        }
+
+        .footer-col h5 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .footer-col a {
+            display: block;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            margin-bottom: 0.6rem;
+            transition: var(--transition);
+        }
+
+        .footer-col a:hover { color: var(--accent-primary); padding-left: 4px; }
+
+        .footer-bottom {
+            border-top: 1px solid var(--border);
+            padding-top: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-muted);
+            font-size: 0.82rem;
+        }
+
+        /* ─── Chatbot Widget ─── */
+        .chatbot-fab {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: var(--gradient-hero);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: white;
+            box-shadow: 0 8px 25px rgba(99,102,241,0.4);
+            transition: var(--transition);
+            z-index: 1000;
+            animation: pulse-ring 2s infinite;
+        }
+
+        .chatbot-fab:hover { transform: scale(1.1); box-shadow: 0 12px 35px rgba(99,102,241,0.55); }
+
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 8px 25px rgba(99,102,241,0.4), 0 0 0 0 rgba(99,102,241,0.3); }
+            70% { box-shadow: 0 8px 25px rgba(99,102,241,0.4), 0 0 0 15px rgba(99,102,241,0); }
+            100% { box-shadow: 0 8px 25px rgba(99,102,241,0.4), 0 0 0 0 rgba(99,102,241,0); }
+        }
+
+        .chatbot-widget {
+            position: fixed;
+            bottom: 5.5rem;
+            right: 2rem;
+            width: 360px;
+            height: 520px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            z-index: 1001;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideInUp 0.3s ease;
+        }
+
+        .chatbot-widget.open { display: flex; }
+
+        .chatbot-header {
+            background: var(--gradient-hero);
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chatbot-header h4 { font-size: 0.95rem; font-weight: 700; color: white; }
+
+        .chatbot-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .chatbot-close:hover { background: rgba(255,255,255,0.35); }
+
+        .chatbot-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .chatbot-messages::-webkit-scrollbar { width: 4px; }
+        .chatbot-messages::-webkit-scrollbar-track { background: transparent; }
+        .chatbot-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+        .chat-msg {
+            max-width: 80%;
+            padding: 0.7rem 1rem;
+            border-radius: 16px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            animation: fadeInUp 0.2s ease;
+        }
+
+        .chat-msg.user {
+            background: var(--gradient-hero);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-msg.bot {
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            border-bottom-left-radius: 4px;
+        }
+
+        .chatbot-input-row {
+            padding: 0.875rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chatbot-input-row input {
+            flex: 1;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 0.6rem 1rem;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .chatbot-input-row input:focus { outline: none; border-color: var(--accent-primary); }
+
+        .chatbot-send {
+            width: 38px;
+            height: 38px;
+            background: var(--gradient-hero);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .chatbot-send:hover { transform: scale(1.1); }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+            padding: 0.7rem 1rem;
+            background: var(--bg-card);
+            border-radius: 16px;
+            border-bottom-left-radius: 4px;
+            width: fit-content;
+            border: 1px solid var(--border);
+        }
+
+        .typing-dots span {
+            width: 7px;
+            height: 7px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite;
+        }
+
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-8px); }
+        }
+
+        /* ─── Animations ─── */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* ─── Section Utilities ─── */
+        .section { padding: 5rem 0; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+        .container-xl { max-width: 1400px; margin: 0 auto; padding: 0 1.5rem; }
+
+        .grid { display: grid; gap: 1.5rem; }
+        .grid-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-3 { grid-template-columns: repeat(3, 1fr); }
+        .grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+        @media (max-width: 1024px) {
+            .grid-4 { grid-template-columns: repeat(2, 1fr); }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .grid-3, .grid-2 { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr; }
+            .navbar-inner { padding: 0 1rem; }
+            .nav-links { display: none; }
+            .nav-links.open { display: flex; flex-direction: column; position: fixed; top: 68px; left: 0; right: 0; background: var(--bg-secondary); padding: 1rem; border-bottom: 1px solid var(--border); }
+            .chatbot-widget { width: calc(100vw - 2rem); right: 1rem; }
+        }
+
+        /* ─── Mobile menu toggle ─── */
+        .mobile-menu-btn {
+            display: none;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        @media (max-width: 768px) { .mobile-menu-btn { display: flex; } }
+
+        /* ─── Section headings ─── */
+        .section-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(99,102,241,0.12);
+            border: 1px solid rgba(99,102,241,0.25);
+            color: var(--accent-primary);
+            padding: 0.3rem 0.875rem;
+            border-radius: 50px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 1rem;
+        }
+
+        .section-heading {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+        }
+
+        .section-sub {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            max-width: 540px;
+        }
+
+        /* ─── Scrollbar ─── */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+
+<body>
+    <div class="bg-mesh"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="{% url 'home' %}" class="navbar-brand">
+                <div class="brand-icon"><i class="fas fa-shield-heart"></i></div>
+                <span class="brand-gradient">HealthGuard</span>
+            </a>
+
+            <ul class="nav-links" id="navLinks">
+                <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="{% url 'policy_list' %}"><i class="fas fa-shield-alt"></i> Plans</a></li>
+                <li><a href="{% url 'premium_calculator' %}"><i class="fas fa-calculator"></i> Calculator</a></li>
+                {% if user.is_authenticated %}
+                <li><a href="{% url 'dashboard' %}"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+                <li><a href="{% url 'chatbot' %}"><i class="fas fa-robot"></i> AI Assistant</a></li>
+                {% else %}
+                <li><a href="{% url 'chatbot' %}"><i class="fas fa-robot"></i> AI Assistant</a></li>
+                {% endif %}
+            </ul>
+
+            <div class="nav-actions">
+                <!-- Language Switcher -->
+                <form method="post" action="{% url 'set_language' %}" id="langForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.path }}">
+                    <select class="lang-select" name="language" onchange="document.getElementById('langForm').submit()" title="Select Language">
+                        <option value="en" {% if request.session.language == 'en' or not request.session.language %}selected{% endif %}>🌐 EN</option>
+                        <option value="hi" {% if request.session.language == 'hi' %}selected{% endif %}>🇮🇳 HI</option>
+                        <option value="kn" {% if request.session.language == 'kn' %}selected{% endif %}>ಕನ್ನಡ</option>
+                        <option value="ta" {% if request.session.language == 'ta' %}selected{% endif %}>தமிழ்</option>
+                        <option value="es" {% if request.session.language == 'es' %}selected{% endif %}>🇪🇸 ES</option>
+                        <option value="fr" {% if request.session.language == 'fr' %}selected{% endif %}>🇫🇷 FR</option>
+                    </select>
+                </form>
+
+                {% if user.is_authenticated %}
+                <div class="user-menu" id="userMenu">
+                    <div class="user-avatar" onclick="toggleUserDropdown()" title="{{ user.username }}">
+                        {{ user.username|first|upper }}
+                    </div>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="dropdown-user-info">
+                            <div class="name">{{ user.get_full_name|default:user.username }}</div>
+                            <div class="email">{{ user.email }}</div>
+                        </div>
+                        {% if user.is_staff %}
+                        <a href="{% url 'admin_dashboard' %}"><i class="fas fa-tachometer-alt"></i> Admin Dashboard</a>
+                        {% else %}
+                        <a href="{% url 'dashboard' %}"><i class="fas fa-chart-line"></i> Dashboard</a>
+                        <a href="{% url 'profile' %}"><i class="fas fa-user-circle"></i> Profile</a>
+                        <a href="{% url 'document_list' %}"><i class="fas fa-file-alt"></i> Documents</a>
+                        <a href="{% url 'submit_claim' %}"><i class="fas fa-plus-circle"></i> Submit Claim</a>
+                        {% endif %}
+                        <hr>
+                        <a href="{% url 'logout' %}" style="color: #f43f5e !important;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-ghost btn-sm">Login</a>
+                <a href="{% url 'register' %}" class="btn btn-primary btn-sm">Get Started</a>
+                {% endif %}
+
+                <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div style="position: fixed; top: 80px; right: 1.5rem; z-index: 9999; max-width: 380px;">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}" id="msg-{{ forloop.counter }}">
+            <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' or message.tags == 'danger' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %}"></i>
+            {{ message }}
+            <button onclick="this.parentElement.remove()" style="background:none;border:none;color:inherit;cursor:pointer;margin-left:auto;font-size:1rem;">×</button>
+        </div>
+        {% endfor %}
+    </div>
+    <script>
+        setTimeout(() => {
+            document.querySelectorAll('.alert').forEach(el => { if(el) el.remove(); });
+        }, 5000);
+    </script>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main>{% block content %}{% endblock %}</main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="{% url 'home' %}" class="navbar-brand" style="margin-bottom: 0.75rem; display: inline-flex;">
+                        <div class="brand-icon"><i class="fas fa-shield-heart"></i></div>
+                        <span class="brand-gradient" style="margin-left: 0.5rem;">HealthGuard</span>
+                    </a>
+                    <p>Advanced AI-powered health insurance platform protecting millions of families with intelligent coverage and real-time risk assessment.</p>
+                </div>
+                <div class="footer-col">
+                    <h5>Product</h5>
+                    <a href="{% url 'policy_list' %}">Insurance Plans</a>
+                    <a href="{% url 'premium_calculator' %}">Calculator</a>
+                    <a href="{% url 'chatbot' %}">AI Assistant</a>
+                    <a href="{% url 'submit_claim' %}">File a Claim</a>
+                </div>
+                <div class="footer-col">
+                    <h5>Account</h5>
+                    <a href="{% url 'register' %}">Register</a>
+                    <a href="{% url 'login' %}">User Login</a>
+                    <a href="{% url 'admin_login' %}">Admin Login</a>
+                    <a href="{% url 'profile' %}">My Profile</a>
+                </div>
+                <div class="footer-col">
+                    <h5>Support</h5>
+                    <a href="{% url 'contact' %}">Contact Us</a>
+                    <a href="#">FAQ</a>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>© 2025 HealthGuard Insurance. All rights reserved.</span>
+                <span>Made with <i class="fas fa-heart" style="color: var(--accent-rose);"></i> for better health</span>
+            </div>
+        </div>
+    </footer>
+
+    {% if user.is_authenticated %}
+    <!-- AI Chatbot Widget -->
+    <button class="chatbot-fab" id="chatFab" onclick="toggleChat()" title="AI Assistant">
+        <i class="fas fa-comments"></i>
+    </button>
+
+    <div class="chatbot-widget" id="chatWidget">
+        <div class="chatbot-header">
+            <div style="display:flex;align-items:center;gap:0.6rem;">
+                <div style="width:32px;height:32px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                    <i class="fas fa-robot" style="font-size:0.9rem;"></i>
+                </div>
+                <div>
+                    <h4>AI Assistant</h4>
+                    <div style="font-size:0.7rem;color:rgba(255,255,255,0.7);display:flex;align-items:center;gap:4px;">
+                        <span style="width:6px;height:6px;background:#10b981;border-radius:50%;display:inline-block;"></span> Online
+                    </div>
+                </div>
+            </div>
+            <button class="chatbot-close" onclick="toggleChat()">×</button>
+        </div>
+        <div class="chatbot-messages" id="chatMessages">
+            <div class="chat-msg bot">
+                Hi! I'm your AI insurance assistant. Ask me anything about your coverage, claims, or health plans! <br><br>
+                <a href="{% url 'chatbot' %}" style="color: var(--accent-primary); font-size: 0.8rem;">Open full chat →</a>
+            </div>
+        </div>
+        <div id="typingIndicator" style="padding: 0 1rem; display: none;">
+            <div class="typing-dots"><span></span><span></span><span></span></div>
+        </div>
+        <div class="chatbot-input-row">
+            <input type="text" id="chatInput" placeholder="Ask a question..." onkeydown="if(event.key==='Enter') sendChat()">
+            <button class="chatbot-send" onclick="sendChat()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <script>
+        let chatOpen = false;
+        const chatSid = 'global_' + Date.now();
+
+        function toggleChat() {
+            chatOpen = !chatOpen;
+            document.getElementById('chatWidget').classList.toggle('open', chatOpen);
+            document.getElementById('chatFab').style.display = chatOpen ? 'none' : 'flex';
+        }
+
+        function sendChat() {
+            const input = document.getElementById('chatInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+            addChatMsg(msg, 'user');
+            input.value = '';
+            document.getElementById('typingIndicator').style.display = 'block';
+
+            fetch('{% url "chatbot_api" %}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                body: JSON.stringify({ message: msg, session_id: chatSid })
+            })
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('typingIndicator').style.display = 'none';
+                addChatMsg(data.success ? data.response : 'Sorry, an error occurred.', 'bot');
+            })
+            .catch(() => {
+                document.getElementById('typingIndicator').style.display = 'none';
+                addChatMsg('Network error. Please try again.', 'bot');
+            });
+        }
+
+        function addChatMsg(text, type) {
+            const box = document.getElementById('chatMessages');
+            const div = document.createElement('div');
+            div.className = `chat-msg ${type}`;
+            div.innerHTML = text.replace(/\n/g, '<br>');
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
+        }
+    </script>
+    {% endif %}
+
+    <script>
+        function toggleUserDropdown() {
+            document.getElementById('userDropdown').classList.toggle('show');
+        }
+
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('userMenu');
+            if (menu && !menu.contains(e.target)) {
+                document.getElementById('userDropdown')?.classList.remove('show');
+            }
+        });
+
+        function toggleMobileMenu() {
+            document.getElementById('navLinks').classList.toggle('open');
+        }
+
+        // Active nav link
+        document.querySelectorAll('.nav-links a').forEach(a => {
+            if (a.href === window.location.href) a.classList.add('active');
+        });
+
+        // Animate numbers in stats
+        function animateNumber(el) {
+            const target = parseFloat(el.dataset.target || el.innerText.replace(/[^0-9.]/g, ''));
+            if (isNaN(target)) return;
+            const prefix = el.dataset.prefix || '';
+            const suffix = el.dataset.suffix || '';
+            const duration = 1200;
+            const start = performance.now();
+            function step(ts) {
+                const p = Math.min((ts - start) / duration, 1);
+                const ease = 1 - Math.pow(1 - p, 3);
+                const current = Math.round(ease * target);
+                el.textContent = prefix + current.toLocaleString('en-IN') + suffix;
+                if (p < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        }
+
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.querySelectorAll('[data-count]').forEach(animateNumber);
+                    observer.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.3 });
+
+        document.querySelectorAll('.stat-card').forEach(el => observer.observe(el));
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

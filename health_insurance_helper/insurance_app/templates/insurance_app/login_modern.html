@@ -1,0 +1,125 @@
+{% extends 'insurance_app/base_modern.html' %}
+{% block title %}Sign In — HealthGuard{% endblock %}
+
+{% block content %}
+<style>
+    .auth-page {
+        min-height: calc(100vh - 68px);
+        display: grid; grid-template-columns: 1fr 1fr;
+    }
+    .auth-left {
+        background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.15));
+        border-right: 1px solid var(--border);
+        padding: 4rem; display: flex; flex-direction: column; justify-content: center;
+    }
+    .auth-right { padding: 4rem; display: flex; flex-direction: column; justify-content: center; max-width: 480px; margin: 0 auto; width: 100%; }
+    .auth-logo-big {
+        width: 72px; height: 72px; background: var(--gradient-hero); border-radius: 20px;
+        display: flex; align-items: center; justify-content: center; font-size: 2rem; color: white;
+        margin-bottom: 2rem;
+    }
+    .auth-tagline { font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; margin-bottom: 1.5rem; line-height: 1.2; }
+    .auth-features { display: flex; flex-direction: column; gap: 1rem; margin-top: 2rem; }
+    .auth-feat {
+        display: flex; align-items: center; gap: 1rem;
+        background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+        padding: 1rem 1.25rem; border-radius: 12px;
+    }
+    .auth-feat-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+    .auth-feat-text { font-size: 0.875rem; color: var(--text-secondary); }
+    .auth-feat-text strong { display: block; color: var(--text-primary); font-size: 0.95rem; margin-bottom: 0.1rem; }
+
+    .auth-form-title { font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .auth-form-sub { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem; }
+
+    .divider { display: flex; align-items: center; gap: 1rem; margin: 1.5rem 0; }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .divider span { color: var(--text-muted); font-size: 0.8rem; }
+
+    .pw-wrapper { position: relative; }
+    .pw-toggle { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer; }
+
+    @media (max-width: 768px) {
+        .auth-page { grid-template-columns: 1fr; }
+        .auth-left { display: none; }
+        .auth-right { padding: 2rem 1.5rem; }
+    }
+</style>
+
+<div class="auth-page">
+    <!-- Left panel -->
+    <div class="auth-left">
+        <div class="auth-logo-big"><i class="fas fa-shield-heart"></i></div>
+        <h1 class="auth-tagline">
+            Smart Protection for<br>
+            <span style="background: var(--gradient-hero); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Your Wellbeing</span>
+        </h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem;">Access your personalized dashboard, track claims, and get AI-powered insights.</p>
+        <div class="auth-features">
+            <div class="auth-feat">
+                <div class="auth-feat-icon" style="background: rgba(99,102,241,0.2); color: #818cf8;"><i class="fas fa-chart-line"></i></div>
+                <div class="auth-feat-text"><strong>Analytics Dashboard</strong>Real-time charts and coverage insights</div>
+            </div>
+            <div class="auth-feat">
+                <div class="auth-feat-icon" style="background: rgba(16,185,129,0.2); color: #34d399;"><i class="fas fa-brain"></i></div>
+                <div class="auth-feat-text"><strong>AI Risk Score</strong>Personalized health risk assessment</div>
+            </div>
+            <div class="auth-feat">
+                <div class="auth-feat-icon" style="background: rgba(6,182,212,0.2); color: #22d3ee;"><i class="fas fa-robot"></i></div>
+                <div class="auth-feat-text"><strong>AI Assistant</strong>24/7 intelligent claims guidance</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right panel (form) -->
+    <div style="display: flex; align-items: center; justify-content: center; padding: 2rem;">
+        <div style="width: 100%; max-width: 420px;">
+            <h2 class="auth-form-title">Welcome back</h2>
+            <p class="auth-form-sub">Sign in to your HealthGuard account</p>
+
+            <form method="post" action="{% url 'login' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" name="username" class="form-control" placeholder="Enter your username" required autofocus>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <div class="pw-wrapper">
+                        <input type="password" name="password" class="form-control" id="pwField" placeholder="Enter your password" required>
+                        <button type="button" class="pw-toggle" onclick="togglePw()">
+                            <i class="fas fa-eye" id="pwIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.875rem; font-size: 1rem; margin-top: 0.5rem;">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+            </form>
+
+            <div class="divider"><span>or</span></div>
+
+            <div style="text-align: center; color: var(--text-muted); font-size: 0.9rem;">
+                Don't have an account?
+                <a href="{% url 'register' %}" style="color: var(--accent-primary); font-weight: 600; text-decoration: none;"> Create one free →</a>
+            </div>
+
+            <div style="text-align: center; margin-top: 1rem;">
+                <a href="{% url 'admin_login' %}" style="color: var(--text-muted); font-size: 0.82rem; text-decoration: none;">
+                    <i class="fas fa-user-shield"></i> Staff/Admin Login
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePw() {
+    const field = document.getElementById('pwField');
+    const icon = document.getElementById('pwIcon');
+    if (field.type === 'password') { field.type = 'text'; icon.className = 'fas fa-eye-slash'; }
+    else { field.type = 'password'; icon.className = 'fas fa-eye'; }
+}
+</script>
+{% endblock %}

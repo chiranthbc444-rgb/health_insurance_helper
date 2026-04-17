@@ -27,3 +27,19 @@ class LoginPortalTests(TestCase):
         response = self.client.post(reverse('admin_login'), {'username': 'normal', 'password': 'pass'}, follow=True)
         self.assertContains(response, 'Only staff members may use this portal.')
         self.assertRedirects(response, reverse('login'))
+
+    def test_document_upload(self):
+        # log in as normal user
+        self.client.login(username='normal', password='pass')
+        # create a simple in-memory file
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        file_content = b'Test PDF content'
+        uploaded_file = SimpleUploadedFile('test.pdf', file_content, content_type='application/pdf')
+
+        response = self.client.post(reverse('upload_document'), {'document_type': 'policy', 'document': uploaded_file}, follow=True)
+        self.assertContains(response, 'Document uploaded and analyzed successfully!')
+        # ensure the DocumentUpload object was created
+        from .models import DocumentUpload
+        docs = DocumentUpload.objects.filter(user=self.user)
+        self.assertEqual(docs.count(), 1)
+        self.assertEqual(docs.first().document_type, 'policy')
